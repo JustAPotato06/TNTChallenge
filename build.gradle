@@ -47,3 +47,9 @@ processResources {
         expand props
     }
 }
+
+tasks {
+    jar {
+        destinationDirectory = file("C:\\Users\\kaden\\OneDrive\\Documents\\[1] My Files\\Development\\Test Server (Spigot)\\plugins")
+    }
+}
