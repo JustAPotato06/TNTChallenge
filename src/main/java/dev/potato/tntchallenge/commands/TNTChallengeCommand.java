@@ -28,7 +28,6 @@ public class TNTChallengeCommand implements TabExecutor {
                 }
             }
         }
-
         return true;
     }
 
@@ -50,10 +49,13 @@ public class TNTChallengeCommand implements TabExecutor {
             p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "[TNT Challenge] If you'd like to reset your regions, please use the " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge resetregions" + ChatColor.YELLOW + ChatColor.BOLD + " command!");
             return;
         }
+
         PersistentDataContainer pData = p.getPersistentDataContainer();
+
         if (!pData.has(new NamespacedKey(TNTChallenge.getPlugin(), "is-setup"), PersistentDataType.BOOLEAN)) {
             pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "is-setup"), PersistentDataType.BOOLEAN, false);
         }
+
         if (args.length == 2 && args[1].equalsIgnoreCase("cancel")) {
             if (pData.get(new NamespacedKey(TNTChallenge.getPlugin(), "is-setup"), PersistentDataType.BOOLEAN)) {
                 pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "is-setup"), PersistentDataType.BOOLEAN, false);
@@ -62,9 +64,12 @@ public class TNTChallengeCommand implements TabExecutor {
             } else {
                 p.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "[TNT Challenge] You are not currently in setup mode!");
             }
-        } else if (args.length == 1) {
+            return;
+        }
+
+        if (args.length == 1) {
             if (!pData.get(new NamespacedKey(TNTChallenge.getPlugin(), "is-setup"), PersistentDataType.BOOLEAN)) {
-                if (p.getInventory().getItemInMainHand().getType().equals(Material.STICK)) {
+                if (p.getInventory().getItemInMainHand().getType() == Material.STICK) {
                     pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "is-setup"), PersistentDataType.BOOLEAN, true);
                     setupUtilities.put(p, new PlayerRegionUtilities());
                     pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "wall1Corner1");

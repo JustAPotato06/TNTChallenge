@@ -21,9 +21,6 @@ import java.util.HashMap;
 COMMANDS TO ADD:
 - /tntchallenge start
 - /tntchallenge resetregions
-
-THINGS TO DO:
-- Clean up the setup messages to 1 line
 */
 
 public final class TNTChallenge extends JavaPlugin {
@@ -47,10 +44,6 @@ public final class TNTChallenge extends JavaPlugin {
         return setupUtilities;
     }
 
-    public void setSetupUtilities(HashMap<Player, PlayerRegionUtilities> setupUtilities) {
-        this.setupUtilities = setupUtilities;
-    }
-
     @Override
     public void onEnable() {
         // Config.yml
@@ -58,6 +51,22 @@ public final class TNTChallenge extends JavaPlugin {
 
         // Initialization
         plugin = this;
+        loadRegionData();
+
+        // Commands
+        getCommand("tntchallenge").setExecutor(new TNTChallengeCommand());
+
+        // Listeners
+        getServer().getPluginManager().registerEvents(new SetupListeners(), this);
+    }
+
+    @Override
+    public void onDisable() {
+        // Shutdown
+        saveRegionData();
+    }
+
+    private void loadRegionData() {
         if (!getConfig().isSet("regions-id")) {
             setRegions(new RegionUtilities());
             try {
@@ -73,7 +82,7 @@ public final class TNTChallenge extends JavaPlugin {
             } catch (IOException e) {
                 Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[TNT Challenge] There was an error creating and initializing region data!");
             }
-        } else if (getConfig().isSet("regions-id")) {
+        } else {
             try {
                 byte[] serializedRegions = Base64.getDecoder().decode(getConfig().getString("regions-id"));
                 ByteArrayInputStream byteIS = new ByteArrayInputStream(serializedRegions);
@@ -85,17 +94,9 @@ public final class TNTChallenge extends JavaPlugin {
                 Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[TNT Challenge] There was an error loading region data!");
             }
         }
-
-        // Commands
-        getCommand("tntchallenge").setExecutor(new TNTChallengeCommand());
-
-        // Listeners
-        getServer().getPluginManager().registerEvents(new SetupListeners(), this);
     }
 
-    @Override
-    public void onDisable() {
-        // De-Initialization
+    private void saveRegionData() {
         try {
             ByteArrayOutputStream byteOS = new ByteArrayOutputStream();
             BukkitObjectOutputStream bukkitOS = new BukkitObjectOutputStream(byteOS);

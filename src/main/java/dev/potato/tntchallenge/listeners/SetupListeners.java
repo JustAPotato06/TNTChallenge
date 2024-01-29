@@ -20,158 +20,71 @@ import org.bukkit.util.BoundingBox;
 public class SetupListeners implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
-        if (!e.getHand().equals(EquipmentSlot.HAND)) return;
+        if (e.getHand() != EquipmentSlot.HAND) return;
         Player p = e.getPlayer();
         PersistentDataContainer pData = p.getPersistentDataContainer();
         if (pData.has(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING)) {
             String currentSet = pData.get(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING);
-            if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && p.getInventory().getItemInMainHand().getType().equals(Material.STICK)) {
-                if (currentSet.equalsIgnoreCase("wall1Corner1")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setWall1Corner1(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "wall1Corner2");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "WALL 1 CORNER 1" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WALL 1 CORNER 2");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("wall1Corner2")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setWall1Corner2(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "wall2Corner1");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "WALL 1 CORNER 2" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WALL 2 CORNER 1");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("wall2Corner1")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setWall2Corner1(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "wall2Corner2");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "WALL 2 CORNER 1" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WALL 2 CORNER 2");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("wall2Corner2")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setWall2Corner2(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "wall3Corner1");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "WALL 2 CORNER 2" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WALL 3 CORNER 1");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("wall3Corner1")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setWall3Corner1(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "wall3Corner2");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "WALL 3 CORNER 1" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WALL 3 CORNER 2");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("wall3Corner2")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setWall3Corner2(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "wall4Corner1");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "WALL 3 CORNER 2" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WALL 4 CORNER 1");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("wall4Corner1")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setWall4Corner1(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "wall4Corner2");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "WALL 4 CORNER 1" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WALL 4 CORNER 2");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("wall4Corner2")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setWall4Corner2(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "floorCorner1");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "WALL 4 CORNER 2" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "FLOOR CORNER 1");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("floorCorner1")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setFloorCorner1(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "floorCorner2");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "FLOOR CORNER 1" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "FLOOR CORNER 2");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("floorCorner2")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setFloorCorner2(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "placeAreaCorner1");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "FLOOR CORNER 2" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "PLACE AREA CORNER 1");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("placeAreaCorner1")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setPlaceAreaCorner1(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "placeAreaCorner2");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "PLACE AREA CORNER 1" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "PLACE AREA CORNER 2");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("placeAreaCorner2")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setPlaceAreaCorner2(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "winAreaCorner1");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "PLACE AREA CORNER 2" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WIN AREA CORNER 1");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("winAreaCorner1")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
-                    Block blockInteracted = e.getClickedBlock();
-                    pru.setWinAreaCorner1(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "winAreaCorner2");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "WIN AREA CORNER 1" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WIN AREA CORNER 2");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Please right click the next corner to continue.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else if (currentSet.equalsIgnoreCase("winAreaCorner2")) {
+            if (e.getAction() == Action.RIGHT_CLICK_BLOCK && p.getInventory().getItemInMainHand().getType() == Material.STICK) {
+                if (currentSet.equalsIgnoreCase("wall1Corner1"))
+                    setCorner(p, pData, e, "WALL 1 CORNER 1", "WALL 1 CORNER 2", "wall1Corner2");
+                if (currentSet.equalsIgnoreCase("wall1Corner2"))
+                    setCorner(p, pData, e, "WALL 1 CORNER 2", "WALL 2 CORNER 1", "wall2Corner1");
+                if (currentSet.equalsIgnoreCase("wall2Corner1"))
+                    setCorner(p, pData, e, "WALL 2 CORNER 1", "WALL 2 CORNER 2", "wall2Corner2");
+                if (currentSet.equalsIgnoreCase("wall2Corner2"))
+                    setCorner(p, pData, e, "WALL 2 CORNER 2", "WALL 3 CORNER 1", "wall3Corner1");
+                if (currentSet.equalsIgnoreCase("wall3Corner1"))
+                    setCorner(p, pData, e, "WALL 3 CORNER 1", "WALL 3 CORNER 2", "wall3Corner2");
+                if (currentSet.equalsIgnoreCase("wall3Corner2"))
+                    setCorner(p, pData, e, "WALL 3 CORNER 2", "WALL 4 CORNER 1", "wall4Corner1");
+                if (currentSet.equalsIgnoreCase("wall4Corner1"))
+                    setCorner(p, pData, e, "WALL 4 CORNER 1", "WALL 4 CORNER 2", "wall4Corner2");
+                if (currentSet.equalsIgnoreCase("wall4Corner2"))
+                    setCorner(p, pData, e, "WALL 4 CORNER 2", "FLOOR CORNER 1", "floorCorner1");
+                if (currentSet.equalsIgnoreCase("floorCorner1"))
+                    setCorner(p, pData, e, "FLOOR CORNER 1", "FLOOR CORNER 2", "floorCorner2");
+                if (currentSet.equalsIgnoreCase("floorCorner2"))
+                    setCorner(p, pData, e, "FLOOR CORNER 2", "PLACE AREA CORNER 1", "placeAreaCorner1");
+                if (currentSet.equalsIgnoreCase("placeAreaCorner1"))
+                    setCorner(p, pData, e, "PLACE AREA CORNER 1", "PLACE AREA CORNER 2", "placeAreaCorner2");
+                if (currentSet.equalsIgnoreCase("placeAreaCorner2"))
+                    setCorner(p, pData, e, "PLACE AREA CORNER 2", "WIN AREA CORNER 1", "winAreaCorner1");
+                if (currentSet.equalsIgnoreCase("winAreaCorner1"))
+                    setCorner(p, pData, e, "WIN AREA CORNER 1", "WIN AREA CORNER 2", "winAreaCorner2");
+                if (currentSet.equalsIgnoreCase("winAreaCorner2")) {
                     PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
                     Block blockInteracted = e.getClickedBlock();
                     pru.setWinAreaCorner2(blockInteracted);
                     pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ============");
-                    p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "Success! " + ChatColor.WHITE + ChatColor.BOLD + "WIN AREA CORNER 2" + ChatColor.YELLOW + ChatColor.BOLD + " has been set.");
-                    p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "You have now completed the setup!");
-                    p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "You can now use the " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge start" + ChatColor.GREEN + ChatColor.BOLD + " command to start the game.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
                     setRegionUtilities(pru);
                     pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "is-setup"), PersistentDataType.BOOLEAN, false);
                     TNTChallenge.getPlugin().getSetupUtilities().remove(p);
+                    p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "[TNT Challenge] Setup has been completed! You can now use " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge start" + ChatColor.GREEN + ChatColor.BOLD + " to start the game.");
                 }
             }
         }
+    }
+
+    private void setCorner(Player p, PersistentDataContainer pData, PlayerInteractEvent e, String beingSet, String toSet, String toSetCamelCase) {
+        PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
+        Block blockInteracted = e.getClickedBlock();
+        if (beingSet.equalsIgnoreCase("WALL 1 CORNER 1")) pru.setWall1Corner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 1 CORNER 2")) pru.setWall1Corner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 2 CORNER 1")) pru.setWall2Corner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 2 CORNER 2")) pru.setWall2Corner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 3 CORNER 1")) pru.setWall3Corner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 3 CORNER 2")) pru.setWall3Corner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 4 CORNER 1")) pru.setWall4Corner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 4 CORNER 2")) pru.setWall4Corner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("FLOOR CORNER 1")) pru.setFloorCorner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("FLOOR CORNER 2")) pru.setFloorCorner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("PLACE AREA CORNER 1")) pru.setPlaceAreaCorner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("PLACE AREA CORNER 2")) pru.setPlaceAreaCorner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WIN AREA CORNER 1")) pru.setWinAreaCorner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WIN AREA CORNER 2")) pru.setWinAreaCorner2(blockInteracted);
+        pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, toSetCamelCase);
+        p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "[TNT Challenge] " + ChatColor.GOLD + ChatColor.BOLD + beingSet + ChatColor.YELLOW + ChatColor.BOLD + " has been set! You are now setting: " + ChatColor.WHITE + ChatColor.BOLD + toSet);
     }
 
     private void setRegionUtilities(PlayerRegionUtilities pru) {
