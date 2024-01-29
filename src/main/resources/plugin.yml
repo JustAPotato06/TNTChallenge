@@ -1,0 +1,7 @@
+name: TNTChallenge
+version: '${version}'
+main: dev.potato.tntchallenge.TNTChallenge
+api-version: '1.20'
+authors: [Potato]
+description: A TNT minigame plugin inspired by the Tiktok TNT gift livestreams.
+website: https://kadenduckwitz6.wixsite.com/potato-development
