@@ -14,5 +14,5 @@ ENDLESS GAME LOOP PERFECT FOR TIKTOK LIVESTREAMS:
 FULLY CONFIGURABLE TO YOUR SERVER NEEDS:
 🖥️ In addition to this, server admins and owners can customize a range of different things! The plugin is configurable and allows you to use whatever sized cube you would like. 🖥️
 
-**This TNT Challenge can serve as a fun new way to entice your viewers to send you gifts, while also giving the viewers a very enjoyable interactive experience!**
+**This TNT Challenge can serve as a fun new way to entice your viewers to send you gifts, while also giving the viewers a very enjoyable and interactive experience!**
 ---------------------------------------------------------------------------------------------------------------
