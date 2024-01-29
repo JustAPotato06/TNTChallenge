@@ -15,10 +15,12 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT"
+    implementation 'com.github.KodySimpson:SimpAPI:4.3.2'
 }
 
 def targetJavaVersion = 17
@@ -45,5 +47,11 @@ processResources {
     filteringCharset 'UTF-8'
     filesMatching('plugin.yml') {
         expand props
+    }
+}
+
+tasks {
+    jar {
+        destinationDirectory = file("C:\\Users\\kaden\\OneDrive\\Documents\\[1] My Files\\Development\\Test Server\\plugins")
     }
 }
