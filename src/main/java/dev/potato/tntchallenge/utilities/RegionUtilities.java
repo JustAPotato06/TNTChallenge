@@ -2,7 +2,9 @@ package dev.potato.tntchallenge.utilities;
 
 import org.bukkit.util.BoundingBox;
 
-public class RegionUtilities {
+import java.io.Serializable;
+
+public class RegionUtilities implements Serializable {
     private BoundingBox wall1;
     private BoundingBox wall2;
     private BoundingBox wall3;
@@ -10,6 +12,7 @@ public class RegionUtilities {
     private BoundingBox floor;
     private BoundingBox placeArea;
     private BoundingBox winArea;
+    private boolean isSetup;
 
     public BoundingBox getWall1() {
         return wall1;
@@ -65,5 +68,13 @@ public class RegionUtilities {
 
     public void setWinArea(BoundingBox winArea) {
         this.winArea = winArea;
+    }
+
+    public boolean isSetup() {
+        return isSetup;
+    }
+
+    public void setSetup(boolean setup) {
+        isSetup = setup;
     }
 }

@@ -1,7 +1,8 @@
 package dev.potato.tntchallenge;
 
-import dev.potato.tntchallenge.listeners.DataInitializationListener;
-import dev.potato.tntchallenge.utilities.RegionPlayerUtilities;
+import dev.potato.tntchallenge.commands.TNTChallengeCommand;
+import dev.potato.tntchallenge.listeners.SetupListeners;
+import dev.potato.tntchallenge.utilities.PlayerRegionUtilities;
 import dev.potato.tntchallenge.utilities.RegionUtilities;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,10 +17,19 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 
+/*
+COMMANDS TO ADD:
+- /tntchallenge start
+- /tntchallenge resetregions
+
+THINGS TO DO:
+- Clean up the setup messages to 1 line
+*/
+
 public final class TNTChallenge extends JavaPlugin {
     private static TNTChallenge plugin;
     private RegionUtilities regions;
-    private HashMap<Player, RegionPlayerUtilities> setupUtilities = new HashMap<>();
+    private HashMap<Player, PlayerRegionUtilities> setupUtilities = new HashMap<>();
 
     public static TNTChallenge getPlugin() {
         return plugin;
@@ -33,11 +43,11 @@ public final class TNTChallenge extends JavaPlugin {
         this.regions = regions;
     }
 
-    public HashMap<Player, RegionPlayerUtilities> getSetupUtilities() {
+    public HashMap<Player, PlayerRegionUtilities> getSetupUtilities() {
         return setupUtilities;
     }
 
-    public void setSetupUtilities(HashMap<Player, RegionPlayerUtilities> setupUtilities) {
+    public void setSetupUtilities(HashMap<Player, PlayerRegionUtilities> setupUtilities) {
         this.setupUtilities = setupUtilities;
     }
 
@@ -58,10 +68,10 @@ public final class TNTChallenge extends JavaPlugin {
                 byte[] serializedRegions = byteOS.toByteArray();
                 String encodedRegions = Base64.getEncoder().encodeToString(serializedRegions);
                 getConfig().set("regions-id", encodedRegions);
+                saveConfig();
                 Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[TNT Challenge] Region data successfully created and initialized!");
             } catch (IOException e) {
                 Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[TNT Challenge] There was an error creating and initializing region data!");
-                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + e.getMessage());
             }
         } else if (getConfig().isSet("regions-id")) {
             try {
@@ -73,17 +83,19 @@ public final class TNTChallenge extends JavaPlugin {
                 Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[TNT Challenge] Region data successfully loaded!");
             } catch (IOException | ClassNotFoundException e) {
                 Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[TNT Challenge] There was an error loading region data!");
-                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + e.getMessage());
             }
         }
 
+        // Commands
+        getCommand("tntchallenge").setExecutor(new TNTChallengeCommand());
+
         // Listeners
-        getServer().getPluginManager().registerEvents(new DataInitializationListener(), this);
+        getServer().getPluginManager().registerEvents(new SetupListeners(), this);
     }
 
     @Override
     public void onDisable() {
-        // Shutdown logic
+        // De-Initialization
         try {
             ByteArrayOutputStream byteOS = new ByteArrayOutputStream();
             BukkitObjectOutputStream bukkitOS = new BukkitObjectOutputStream(byteOS);
@@ -92,10 +104,10 @@ public final class TNTChallenge extends JavaPlugin {
             byte[] serializedRegions = byteOS.toByteArray();
             String encodedRegions = Base64.getEncoder().encodeToString(serializedRegions);
             getConfig().set("regions-id", encodedRegions);
+            saveConfig();
             Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[TNT Challenge] Region data successfully saved!");
         } catch (IOException e) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[TNT Challenge] There was an error saving region data!");
-            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + e.getMessage());
         }
     }
 }

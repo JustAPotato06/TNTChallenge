@@ -2,7 +2,7 @@ package dev.potato.tntchallenge.utilities;
 
 import org.bukkit.block.Block;
 
-public class RegionPlayerUtilities {
+public class PlayerRegionUtilities {
     private Block wall1Corner1;
     private Block wall1Corner2;
     private Block wall2Corner1;
