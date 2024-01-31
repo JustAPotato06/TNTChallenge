@@ -1,1 +1,5 @@
 regions-id:
+spawn-chance: 5
+min-tnt-power: 2
+max-tnt-power: 10
+tnt-detonate-time: 60

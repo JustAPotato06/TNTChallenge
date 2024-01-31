@@ -1,8 +1,12 @@
 package dev.potato.tntchallenge.utilities;
 
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.util.BoundingBox;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RegionUtilities implements Serializable {
     private BoundingBox wall1;
@@ -76,5 +80,18 @@ public class RegionUtilities implements Serializable {
 
     public void setSetup(boolean setup) {
         isSetup = setup;
+    }
+
+    public static List<Block> boundingBoxToList(BoundingBox boundingBox, World world) {
+        List<Block> blocksFound = new ArrayList<>();
+        for (int x = (int) boundingBox.getMinX(); x <= (int) boundingBox.getMaxX(); x++) {
+            for (int y = (int) boundingBox.getMinY(); y <= (int) boundingBox.getMaxY(); y++) {
+                for (int z = (int) boundingBox.getMinZ(); z <= (int) boundingBox.getMaxZ(); z++) {
+                    Block block = world.getBlockAt(x, y, z);
+                    blocksFound.add(block);
+                }
+            }
+        }
+        return blocksFound;
     }
 }

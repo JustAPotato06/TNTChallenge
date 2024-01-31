@@ -1,8 +1,12 @@
 package dev.potato.tntchallenge;
 
 import dev.potato.tntchallenge.commands.TNTChallengeCommand;
+import dev.potato.tntchallenge.listeners.GameListeners;
+import dev.potato.tntchallenge.listeners.ScoreboardListeners;
 import dev.potato.tntchallenge.listeners.SetupListeners;
-import dev.potato.tntchallenge.utilities.PlayerRegionUtilities;
+import dev.potato.tntchallenge.utilities.GameUtilities;
+import dev.potato.tntchallenge.utilities.PlayerScoreboardUtilities;
+import dev.potato.tntchallenge.utilities.PlayerSetupRegionUtilities;
 import dev.potato.tntchallenge.utilities.RegionUtilities;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,15 +22,17 @@ import java.util.Base64;
 import java.util.HashMap;
 
 /*
-COMMANDS TO ADD:
-- /tntchallenge start
-- /tntchallenge resetregions
+    THINGS TO DO:
+    - Fix configuration file
+    - Add win logic
 */
 
 public final class TNTChallenge extends JavaPlugin {
     private static TNTChallenge plugin;
     private RegionUtilities regions;
-    private HashMap<Player, PlayerRegionUtilities> setupUtilities = new HashMap<>();
+    private HashMap<Player, PlayerSetupRegionUtilities> setupUtilities = new HashMap<>();
+    private HashMap<Player, PlayerScoreboardUtilities> scoreboardUtilities = new HashMap<>();
+    private GameUtilities gameUtilities = new GameUtilities(false, false, null);
 
     public static TNTChallenge getPlugin() {
         return plugin;
@@ -40,8 +46,20 @@ public final class TNTChallenge extends JavaPlugin {
         this.regions = regions;
     }
 
-    public HashMap<Player, PlayerRegionUtilities> getSetupUtilities() {
+    public HashMap<Player, PlayerSetupRegionUtilities> getSetupUtilities() {
         return setupUtilities;
+    }
+
+    public HashMap<Player, PlayerScoreboardUtilities> getScoreboardUtilities() {
+        return scoreboardUtilities;
+    }
+
+    public GameUtilities getGameUtilities() {
+        return gameUtilities;
+    }
+
+    public void setGameUtilities(GameUtilities gameUtilities) {
+        this.gameUtilities = gameUtilities;
     }
 
     @Override
@@ -58,6 +76,8 @@ public final class TNTChallenge extends JavaPlugin {
 
         // Listeners
         getServer().getPluginManager().registerEvents(new SetupListeners(), this);
+        getServer().getPluginManager().registerEvents(new ScoreboardListeners(), this);
+        getServer().getPluginManager().registerEvents(new GameListeners(), this);
     }
 
     @Override
