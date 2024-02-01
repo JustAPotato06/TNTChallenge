@@ -19,11 +19,13 @@ public class ScoreboardListeners implements Listener {
         Player p = e.getPlayer();
         PersistentDataContainer pData = p.getPersistentDataContainer();
         // Check if the player has a scoreboard that should be updated
-        if (pData.get(new NamespacedKey(plugin, "update-scoreboard"), PersistentDataType.BOOLEAN)) {
-            // Update the blocks placed scoreboard value
-            PlayerScoreboardUtilities scoreboardUtility = plugin.getScoreboardUtilities().get(p);
-            scoreboardUtility.setBlocksPlaced(scoreboardUtility.getBlocksPlaced() + 1);
-            scoreboardUtility.givePlayerScoreboard(p, true);
+        if (pData.has(new NamespacedKey(plugin, "update-scoreboard"), PersistentDataType.BOOLEAN)) {
+            if (pData.get(new NamespacedKey(plugin, "update-scoreboard"), PersistentDataType.BOOLEAN)) {
+                // Update the blocks placed scoreboard value
+                PlayerScoreboardUtilities scoreboardUtility = plugin.getScoreboardUtilities().get(p);
+                scoreboardUtility.setBlocksPlaced(scoreboardUtility.getBlocksPlaced() + 1);
+                scoreboardUtility.givePlayerScoreboard(p, true);
+            }
         }
     }
 }

@@ -22,11 +22,6 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 
-/*
-    THINGS TO DO:
-    - Add win logic
-*/
-
 public final class TNTChallenge extends JavaPlugin {
     private static TNTChallenge plugin;
     private RegionUtilities regions;

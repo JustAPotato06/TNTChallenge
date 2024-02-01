@@ -1,8 +1,10 @@
 package dev.potato.tntchallenge.listeners;
 
 import dev.potato.tntchallenge.TNTChallenge;
+import dev.potato.tntchallenge.tasks.WinCountdownTask;
 import dev.potato.tntchallenge.utilities.GameUtilities;
 import dev.potato.tntchallenge.utilities.RegionUtilities;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -92,9 +94,12 @@ public class GameListeners implements Listener {
             }
             // Check if the game is paused
             if (!plugin.getGameUtilities().isPaused()) {
-                // Execute win logic
+                // Check for win
                 if (didWin) {
-                    System.out.println("WON");
+                    // Execute win logic
+                    Player p = plugin.getGameUtilities().getPlayer();
+                    p.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "STARTING COUNTDOWN!", "", 2, 40, 2);
+                    new WinCountdownTask(p, winArea).runTaskTimer(plugin, 50, 30);
                 }
             }
         }

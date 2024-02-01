@@ -10,7 +10,11 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -32,6 +36,9 @@ public class TNTChallengeCommand implements TabExecutor {
                 if (args[0].equalsIgnoreCase("stop")) stop(p, args);
                 if (args[0].equalsIgnoreCase("pause")) pause(p);
                 if (args[0].equalsIgnoreCase("resume")) resume(p);
+                if (args[0].equalsIgnoreCase("help")) help(p);
+            } else {
+                help(p);
             }
         }
         return true;
@@ -47,11 +54,21 @@ public class TNTChallengeCommand implements TabExecutor {
             arguments.add("stop");
             arguments.add("pause");
             arguments.add("resume");
+            arguments.add("help");
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("setup")) arguments.add("cancel");
-        if (args.length == 2 && args[0].equalsIgnoreCase("start")) arguments.add("usetiktok");
-        if (args.length == 2 && args[0].equalsIgnoreCase("stop")) arguments.add("tiktok");
         return arguments;
+    }
+
+    private void help(Player p) {
+        p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "========= TNT CHALLENGE =========");
+        p.sendMessage(ChatColor.YELLOW + "/tntchallenge setup [cancel]" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Allows you to configure the play area regions for the plugin");
+        p.sendMessage(ChatColor.YELLOW + "/tntchallenge resetregions" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Clears all currently saved regions");
+        p.sendMessage(ChatColor.YELLOW + "/tntchallenge start" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Starts the game");
+        p.sendMessage(ChatColor.YELLOW + "/tntchallenge stop" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Stops the game");
+        p.sendMessage(ChatColor.YELLOW + "/tntchallenge pause" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Pauses the game, disabling TNT spawns and the ability to trigger the countdown");
+        p.sendMessage(ChatColor.YELLOW + "/tntchallenge resume" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Resumes all functions and allows you to play again from where you left off");
+        p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "================================");
     }
 
     private void setup(Player p, String[] args) {
@@ -83,22 +100,25 @@ public class TNTChallengeCommand implements TabExecutor {
         if (args.length == 1) {
             // Check if they aren't already in setup mode
             if (!pData.get(new NamespacedKey(plugin, "is-setup"), PersistentDataType.BOOLEAN)) {
-                // Check if the item in their hand is a stick
-                if (p.getInventory().getItemInMainHand().getType() == Material.STICK) {
-                    // Put them in setup mode
-                    pData.set(new NamespacedKey(plugin, "is-setup"), PersistentDataType.BOOLEAN, true);
-                    setupUtilities.put(p, new PlayerSetupRegionUtilities());
-                    // Initiate setup
-                    pData.set(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING, "wall1Corner1");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ==============");
-                    p.sendMessage(ChatColor.YELLOW + "Welcome to setup mode!");
-                    p.sendMessage(ChatColor.YELLOW + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WALL 1 CORNER 1");
-                    p.sendMessage(ChatColor.YELLOW + "Please right click the first corner to continue.");
-                    p.sendMessage(ChatColor.YELLOW + "At any point during setup, you can use " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge setup cancel" + ChatColor.YELLOW + " to leave setup mode.");
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
-                } else {
-                    p.sendMessage(ChatColor.RED + "[TNT Challenge] You must be holding a stick to enter setup mode!");
-                }
+                // Give the player a setup stick
+                ItemStack setupStick = new ItemStack(Material.STICK);
+                ItemMeta setupStickMeta = setupStick.getItemMeta();
+                setupStickMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "SETUP STICK");
+                setupStickMeta.addEnchant(Enchantment.DIG_SPEED, 5, true);
+                setupStickMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                setupStick.setItemMeta(setupStickMeta);
+                p.getInventory().setItemInMainHand(setupStick);
+                // Put them in setup mode
+                pData.set(new NamespacedKey(plugin, "is-setup"), PersistentDataType.BOOLEAN, true);
+                setupUtilities.put(p, new PlayerSetupRegionUtilities());
+                // Initiate setup
+                pData.set(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING, "wall1Corner1");
+                p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ==============");
+                p.sendMessage(ChatColor.YELLOW + "Welcome to setup mode!");
+                p.sendMessage(ChatColor.YELLOW + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WALL 1 CORNER 1");
+                p.sendMessage(ChatColor.YELLOW + "Please right click the first corner to continue.");
+                p.sendMessage(ChatColor.YELLOW + "At any point during setup, you can use " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge setup cancel" + ChatColor.YELLOW + " to leave setup mode.");
+                p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
             } else {
                 p.sendMessage(ChatColor.RED + "[TNT Challenge] You are already in setup mode!");
             }
@@ -115,11 +135,12 @@ public class TNTChallengeCommand implements TabExecutor {
     }
 
     private void start(Player p, String[] args) {
-        // Check if they want to use Tiktok connectivity
-        if (args.length == 2 && args[1].equalsIgnoreCase("usetiktok")) {
-            // Tiktok Game logic
-            p.sendMessage(ChatColor.RED + "[TNT Challenge] Tiktok livestream compatability has not yet been set up! It's expected to be added in a future update.");
-        } else if (args.length == 1) {
+        // Check if the game is going
+        if (plugin.getGameUtilities().isPlaying()) {
+            p.sendMessage(ChatColor.RED + "[TNT Challenge] There is already a game currently going!");
+            return;
+        }
+        if (args.length == 1) {
             // Check if the regions are configured
             if (plugin.getRegions().isSetup()) {
                 // Start the game
@@ -129,16 +150,12 @@ public class TNTChallengeCommand implements TabExecutor {
             }
         } else {
             p.sendMessage(ChatColor.RED + "[TNT Challenge] Incorrect command usage! Please try again.");
-            p.sendMessage(ChatColor.RED + "[TNT Challenge] Example: /tntchallenge start [usetiktok]");
+            p.sendMessage(ChatColor.RED + "[TNT Challenge] Example: /tntchallenge start");
         }
     }
 
     private void stop(Player p, String[] args) {
-        // Check if they are using Tiktok connectivity
-        if (args.length == 2 && args[1].equalsIgnoreCase("tiktok")) {
-            // Tiktok Game logic
-            p.sendMessage(ChatColor.RED + "[TNT Challenge] Tiktok livestream compatability has not yet been set up! It's expected to be added in a future update.");
-        } else if (args.length == 1) {
+        if (args.length == 1) {
             // Check if the game is going
             if (plugin.getGameUtilities().isPlaying()) {
                 // End the game
@@ -148,7 +165,7 @@ public class TNTChallengeCommand implements TabExecutor {
             }
         } else {
             p.sendMessage(ChatColor.RED + "[TNT Challenge] Incorrect command usage! Please try again.");
-            p.sendMessage(ChatColor.RED + "[TNT Challenge] Example: /tntchallenge stop [tiktok]");
+            p.sendMessage(ChatColor.RED + "[TNT Challenge] Example: /tntchallenge stop");
         }
     }
 

@@ -116,7 +116,7 @@ public class GameUtilities {
         new BukkitRunnable() {
             @Override
             public void run() {
-                plugin.setGameUtilities(new GameUtilities(false, false, p));
+                plugin.setGameUtilities(new GameUtilities(false, false, null));
             }
         }.runTaskLater(plugin, 20);
 

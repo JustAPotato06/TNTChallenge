@@ -4,7 +4,6 @@ import dev.potato.tntchallenge.TNTChallenge;
 import dev.potato.tntchallenge.utilities.PlayerSetupRegionUtilities;
 import dev.potato.tntchallenge.utilities.RegionUtilities;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -31,8 +30,8 @@ public class SetupListeners implements Listener {
         if (pData.has(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING)) {
             // Grab what they are currently setting
             String currentSet = pData.get(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING);
-            // Make sure the action is a right click block and that they have a stick in hand
-            if (e.getAction() == Action.RIGHT_CLICK_BLOCK && p.getInventory().getItemInMainHand().getType() == Material.STICK) {
+            // Make sure the action is a right click block and that they have the setup stick in hand
+            if (e.getAction() == Action.RIGHT_CLICK_BLOCK && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GOLD + "" + ChatColor.BOLD + "SETUP STICK")) {
                 // Set the corner according to what the player is currently setting
                 if (currentSet.equalsIgnoreCase("wall1Corner1"))
                     setCorner(p, pData, e, "WALL 1 CORNER 1", "WALL 1 CORNER 2", "wall1Corner2");
