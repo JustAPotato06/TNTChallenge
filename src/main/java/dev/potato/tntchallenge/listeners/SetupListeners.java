@@ -1,10 +1,9 @@
 package dev.potato.tntchallenge.listeners;
 
 import dev.potato.tntchallenge.TNTChallenge;
-import dev.potato.tntchallenge.utilities.PlayerRegionUtilities;
+import dev.potato.tntchallenge.utilities.PlayerSetupRegionUtilities;
 import dev.potato.tntchallenge.utilities.RegionUtilities;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -18,14 +17,22 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.BoundingBox;
 
 public class SetupListeners implements Listener {
+    private TNTChallenge plugin = TNTChallenge.getPlugin();
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
+        // Make sure this event only fires once for the main hand
         if (e.getHand() != EquipmentSlot.HAND) return;
+        // Initialization
         Player p = e.getPlayer();
         PersistentDataContainer pData = p.getPersistentDataContainer();
-        if (pData.has(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING)) {
-            String currentSet = pData.get(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING);
-            if (e.getAction() == Action.RIGHT_CLICK_BLOCK && p.getInventory().getItemInMainHand().getType() == Material.STICK) {
+        // Check for if the player is in setup mode
+        if (pData.has(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING)) {
+            // Grab what they are currently setting
+            String currentSet = pData.get(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING);
+            // Make sure the action is a right click block and that they have the setup stick in hand
+            if (e.getAction() == Action.RIGHT_CLICK_BLOCK && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GOLD + "" + ChatColor.BOLD + "SETUP STICK")) {
+                // Set the corner according to what the player is currently setting
                 if (currentSet.equalsIgnoreCase("wall1Corner1"))
                     setCorner(p, pData, e, "WALL 1 CORNER 1", "WALL 1 CORNER 2", "wall1Corner2");
                 if (currentSet.equalsIgnoreCase("wall1Corner2"))
@@ -52,22 +59,26 @@ public class SetupListeners implements Listener {
                     setCorner(p, pData, e, "PLACE AREA CORNER 2", "WIN AREA CORNER 1", "winAreaCorner1");
                 if (currentSet.equalsIgnoreCase("winAreaCorner1"))
                     setCorner(p, pData, e, "WIN AREA CORNER 1", "WIN AREA CORNER 2", "winAreaCorner2");
+                // Final corner logic
                 if (currentSet.equalsIgnoreCase("winAreaCorner2")) {
-                    PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
+                    // Set the corner
+                    PlayerSetupRegionUtilities pru = plugin.getSetupUtilities().get(p);
                     Block blockInteracted = e.getClickedBlock();
                     pru.setWinAreaCorner2(blockInteracted);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, "");
+                    pData.set(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING, "");
+                    // Save all corners to the persistent region utility object
                     setRegionUtilities(pru);
-                    pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "is-setup"), PersistentDataType.BOOLEAN, false);
-                    TNTChallenge.getPlugin().getSetupUtilities().remove(p);
-                    p.sendMessage(ChatColor.GREEN + "" + ChatColor.BOLD + "[TNT Challenge] Setup has been completed! You can now use " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge start" + ChatColor.GREEN + ChatColor.BOLD + " to start the game.");
+                    // Take the player out of setup mode
+                    pData.set(new NamespacedKey(plugin, "is-setup"), PersistentDataType.BOOLEAN, false);
+                    plugin.getSetupUtilities().remove(p);
+                    p.sendMessage(ChatColor.GREEN + "[TNT Challenge] Setup has been completed! You can now use " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge start" + ChatColor.GREEN + " to start the game.");
                 }
             }
         }
     }
 
     private void setCorner(Player p, PersistentDataContainer pData, PlayerInteractEvent e, String beingSet, String toSet, String toSetCamelCase) {
-        PlayerRegionUtilities pru = TNTChallenge.getPlugin().getSetupUtilities().get(p);
+        PlayerSetupRegionUtilities pru = plugin.getSetupUtilities().get(p);
         Block blockInteracted = e.getClickedBlock();
         if (beingSet.equalsIgnoreCase("WALL 1 CORNER 1")) pru.setWall1Corner1(blockInteracted);
         if (beingSet.equalsIgnoreCase("WALL 1 CORNER 2")) pru.setWall1Corner2(blockInteracted);
@@ -83,12 +94,12 @@ public class SetupListeners implements Listener {
         if (beingSet.equalsIgnoreCase("PLACE AREA CORNER 2")) pru.setPlaceAreaCorner2(blockInteracted);
         if (beingSet.equalsIgnoreCase("WIN AREA CORNER 1")) pru.setWinAreaCorner1(blockInteracted);
         if (beingSet.equalsIgnoreCase("WIN AREA CORNER 2")) pru.setWinAreaCorner2(blockInteracted);
-        pData.set(new NamespacedKey(TNTChallenge.getPlugin(), "current-set"), PersistentDataType.STRING, toSetCamelCase);
-        p.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "[TNT Challenge] " + ChatColor.GOLD + ChatColor.BOLD + beingSet + ChatColor.YELLOW + ChatColor.BOLD + " has been set! You are now setting: " + ChatColor.WHITE + ChatColor.BOLD + toSet);
+        pData.set(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING, toSetCamelCase);
+        p.sendMessage(ChatColor.YELLOW + "You are now setting: " + ChatColor.WHITE + ChatColor.BOLD + toSet);
     }
 
-    private void setRegionUtilities(PlayerRegionUtilities pru) {
-        RegionUtilities regions = TNTChallenge.getPlugin().getRegions();
+    private void setRegionUtilities(PlayerSetupRegionUtilities pru) {
+        RegionUtilities regions = plugin.getRegions();
         Block wall1Corner1 = pru.getWall1Corner1();
         Block wall1Corner2 = pru.getWall1Corner2();
         regions.setWall1(new BoundingBox(wall1Corner1.getX(), wall1Corner1.getY(), wall1Corner1.getZ(), wall1Corner2.getX(), wall1Corner2.getY(), wall1Corner2.getZ()));

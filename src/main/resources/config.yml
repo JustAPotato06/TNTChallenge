@@ -1,1 +1,22 @@
-regions-id:
+###################
+#                 #
+#  GAME SETTINGS  #
+#                 #
+###################
+
+# The chance, in percentage, that a TNT has to spawn every second after the game starts
+# It's recommended that this value stays below 10 (or 10%)
+spawn-chance: 5
+
+# The minimum and maximum power a TNT can have when spawned
+# Power is chosen randomly with these two numbers as the range (inclusive)
+min-tnt-power: 2
+max-tnt-power: 10
+
+# The amount of time, in ticks, that it takes for TNT to detonate after it spawns
+# WARNING: Setting this value to anything at or below 10 ticks may break the game!
+tnt-detonate-time: 60
+
+# The amount of time, in seconds, that you must have the win area filled in order to trigger a win
+# Reccomended: 10-15 seconds
+countdown-time: 15
