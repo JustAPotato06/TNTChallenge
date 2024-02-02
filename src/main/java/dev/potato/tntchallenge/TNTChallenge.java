@@ -5,10 +5,10 @@ import dev.potato.tntchallenge.configs.RegionConfig;
 import dev.potato.tntchallenge.listeners.GameListeners;
 import dev.potato.tntchallenge.listeners.ScoreboardListeners;
 import dev.potato.tntchallenge.listeners.SetupListeners;
-import dev.potato.tntchallenge.utilities.GameUtilities;
-import dev.potato.tntchallenge.utilities.PlayerScoreboardUtilities;
-import dev.potato.tntchallenge.utilities.PlayerSetupRegionUtilities;
-import dev.potato.tntchallenge.utilities.RegionUtilities;
+import dev.potato.tntchallenge.utilities.GameUtility;
+import dev.potato.tntchallenge.utilities.PlayerScoreboardUtility;
+import dev.potato.tntchallenge.utilities.PlayerSetupRegionUtility;
+import dev.potato.tntchallenge.utilities.RegionUtility;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -24,43 +24,60 @@ import java.util.HashMap;
 
 public final class TNTChallenge extends JavaPlugin {
     private static TNTChallenge plugin;
-    private RegionUtilities regions;
-    private HashMap<Player, PlayerSetupRegionUtilities> setupUtilities = new HashMap<>();
-    private HashMap<Player, PlayerScoreboardUtilities> scoreboardUtilities = new HashMap<>();
-    private GameUtilities gameUtilities = new GameUtilities(false, false, null);
+    private RegionUtility regions;
+    private final HashMap<Player, PlayerSetupRegionUtility> setupUtilities = new HashMap<>();
+    private final HashMap<Player, PlayerScoreboardUtility> scoreboardUtilities = new HashMap<>();
+    private final HashMap<Player, GameUtility> gameUtilities = new HashMap<>();
 
     public static TNTChallenge getPlugin() {
         return plugin;
     }
 
-    public RegionUtilities getRegions() {
+    public RegionUtility getRegions() {
         return regions;
     }
 
-    public void setRegions(RegionUtilities regions) {
+    public void setRegions(RegionUtility regions) {
         this.regions = regions;
     }
 
-    public HashMap<Player, PlayerSetupRegionUtilities> getSetupUtilities() {
-        return setupUtilities;
+    public PlayerSetupRegionUtility getSetupUtility(Player p) {
+        PlayerSetupRegionUtility setupUtility;
+        if (setupUtilities.containsKey(p)) {
+            setupUtility = setupUtilities.get(p);
+        } else {
+            setupUtility = new PlayerSetupRegionUtility(p);
+            setupUtilities.put(p, setupUtility);
+        }
+        return setupUtility;
     }
 
-    public HashMap<Player, PlayerScoreboardUtilities> getScoreboardUtilities() {
-        return scoreboardUtilities;
+    public PlayerScoreboardUtility getScoreboardUtility(Player p) {
+        PlayerScoreboardUtility scoreboardUtility;
+        if (scoreboardUtilities.containsKey(p)) {
+            scoreboardUtility = scoreboardUtilities.get(p);
+        } else {
+            scoreboardUtility = new PlayerScoreboardUtility(p);
+            scoreboardUtilities.put(p, scoreboardUtility);
+        }
+        return scoreboardUtility;
     }
 
-    public GameUtilities getGameUtilities() {
-        return gameUtilities;
-    }
-
-    public void setGameUtilities(GameUtilities gameUtilities) {
-        this.gameUtilities = gameUtilities;
+    public GameUtility getGameUtility(Player p) {
+        GameUtility gameUtility;
+        if (gameUtilities.containsKey(p)) {
+            gameUtility = gameUtilities.get(p);
+        } else {
+            gameUtility = new GameUtility(false, false, p);
+            gameUtilities.put(p, gameUtility);
+        }
+        return gameUtility;
     }
 
     @Override
     public void onEnable() {
         // Config.yml
-        getConfig().options().copyDefaults();
+        getConfig().options().copyDefaults(true);
         saveDefaultConfig();
         RegionConfig.setup();
         RegionConfig.get().options().copyDefaults(true);
@@ -71,23 +88,21 @@ public final class TNTChallenge extends JavaPlugin {
         loadRegionData();
 
         // Commands
-        getCommand("tntchallenge").setExecutor(new TNTChallengeCommand());
+        registerCommands();
 
         // Listeners
-        getServer().getPluginManager().registerEvents(new SetupListeners(), this);
-        getServer().getPluginManager().registerEvents(new ScoreboardListeners(), this);
-        getServer().getPluginManager().registerEvents(new GameListeners(), this);
+        registerListeners();
     }
 
     @Override
     public void onDisable() {
-        // Shutdown
+        // De-Initialization
         saveRegionData();
     }
 
     private void loadRegionData() {
         if (!RegionConfig.get().isSet("regions-id")) {
-            setRegions(new RegionUtilities());
+            setRegions(new RegionUtility());
             try {
                 ByteArrayOutputStream byteOS = new ByteArrayOutputStream();
                 BukkitObjectOutputStream bukkitOS = new BukkitObjectOutputStream(byteOS);
@@ -106,7 +121,7 @@ public final class TNTChallenge extends JavaPlugin {
                 byte[] serializedRegions = Base64.getDecoder().decode(RegionConfig.get().getString("regions-id"));
                 ByteArrayInputStream byteIS = new ByteArrayInputStream(serializedRegions);
                 BukkitObjectInputStream bukkitIS = new BukkitObjectInputStream(byteIS);
-                RegionUtilities deserializedRegions = (RegionUtilities) bukkitIS.readObject();
+                RegionUtility deserializedRegions = (RegionUtility) bukkitIS.readObject();
                 setRegions(deserializedRegions);
                 Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[TNT Challenge] Region data successfully loaded!");
             } catch (IOException | ClassNotFoundException e) {
@@ -129,5 +144,15 @@ public final class TNTChallenge extends JavaPlugin {
         } catch (IOException e) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[TNT Challenge] There was an error saving region data!");
         }
+    }
+
+    private void registerCommands() {
+        getCommand("tntchallenge").setExecutor(new TNTChallengeCommand());
+    }
+
+    private void registerListeners() {
+        getServer().getPluginManager().registerEvents(new SetupListeners(), this);
+        getServer().getPluginManager().registerEvents(new ScoreboardListeners(), this);
+        getServer().getPluginManager().registerEvents(new GameListeners(), this);
     }
 }

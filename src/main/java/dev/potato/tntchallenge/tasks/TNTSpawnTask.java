@@ -1,7 +1,7 @@
 package dev.potato.tntchallenge.tasks;
 
 import dev.potato.tntchallenge.TNTChallenge;
-import dev.potato.tntchallenge.utilities.PlayerScoreboardUtilities;
+import dev.potato.tntchallenge.utilities.PlayerScoreboardUtility;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
@@ -21,7 +21,7 @@ public class TNTSpawnTask extends BukkitRunnable {
     @Override
     public void run() {
         // Check for game pause
-        if(plugin.getGameUtilities().isPaused()) return;
+        if (plugin.getGameUtility(p).isPaused()) return;
         // Check for cooldown
         if (!isCooldown) {
             // Generate Random Chance
@@ -51,9 +51,9 @@ public class TNTSpawnTask extends BukkitRunnable {
                 // Notify the player that TNT has spawned
                 p.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "TNT HAS SPAWNED!", ChatColor.GOLD + "" + ChatColor.BOLD + "Power Level: " + ChatColor.WHITE + ChatColor.BOLD + power, 2, 60, 2);
                 // Update TNT spawned on scoreboard
-                PlayerScoreboardUtilities psu = plugin.getScoreboardUtilities().get(p);
+                PlayerScoreboardUtility psu = plugin.getScoreboardUtility(p);
                 psu.setTntSpawned(psu.getTntSpawned() + 1);
-                psu.givePlayerScoreboard(p, true);
+                psu.givePlayerScoreboard(false);
                 // Activate the TNT spawn cooldown
                 isCooldown = true;
                 new BukkitRunnable() {

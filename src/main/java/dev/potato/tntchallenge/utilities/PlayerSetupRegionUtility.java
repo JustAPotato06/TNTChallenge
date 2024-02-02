@@ -1,8 +1,9 @@
 package dev.potato.tntchallenge.utilities;
 
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
-public class PlayerSetupRegionUtilities {
+public class PlayerSetupRegionUtility {
     private Block wall1Corner1;
     private Block wall1Corner2;
     private Block wall2Corner1;
@@ -17,6 +18,11 @@ public class PlayerSetupRegionUtilities {
     private Block placeAreaCorner2;
     private Block winAreaCorner1;
     private Block winAreaCorner2;
+    private Player player;
+
+    public PlayerSetupRegionUtility(Player player) {
+        this.player = player;
+    }
 
     public Block getWall1Corner1() {
         return wall1Corner1;

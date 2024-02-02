@@ -2,8 +2,7 @@ package dev.potato.tntchallenge.listeners;
 
 import dev.potato.tntchallenge.TNTChallenge;
 import dev.potato.tntchallenge.tasks.WinCountdownTask;
-import dev.potato.tntchallenge.utilities.GameUtilities;
-import dev.potato.tntchallenge.utilities.RegionUtilities;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -25,11 +24,11 @@ public class GameListeners implements Listener {
     @EventHandler
     public void onExplode(BlockExplodeEvent e) {
         // Ensure any blocks associated with the walls or floor aren't broken on explosion
-        List<Block> wall1 = RegionUtilities.boundingBoxToList(plugin.getRegions().getWall1(), plugin.getGameUtilities().getPlayer().getWorld());
-        List<Block> wall2 = RegionUtilities.boundingBoxToList(plugin.getRegions().getWall2(), plugin.getGameUtilities().getPlayer().getWorld());
-        List<Block> wall3 = RegionUtilities.boundingBoxToList(plugin.getRegions().getWall3(), plugin.getGameUtilities().getPlayer().getWorld());
-        List<Block> wall4 = RegionUtilities.boundingBoxToList(plugin.getRegions().getWall4(), plugin.getGameUtilities().getPlayer().getWorld());
-        List<Block> floor = RegionUtilities.boundingBoxToList(plugin.getRegions().getFloor(), plugin.getGameUtilities().getPlayer().getWorld());
+        List<Block> wall1 = plugin.getRegions().boundingBoxToList(plugin.getRegions().getWall1(), Bukkit.getWorld(plugin.getConfig().getString("world-name")));
+        List<Block> wall2 = plugin.getRegions().boundingBoxToList(plugin.getRegions().getWall2(), Bukkit.getWorld(plugin.getConfig().getString("world-name")));
+        List<Block> wall3 = plugin.getRegions().boundingBoxToList(plugin.getRegions().getWall3(), Bukkit.getWorld(plugin.getConfig().getString("world-name")));
+        List<Block> wall4 = plugin.getRegions().boundingBoxToList(plugin.getRegions().getWall4(), Bukkit.getWorld(plugin.getConfig().getString("world-name")));
+        List<Block> floor = plugin.getRegions().boundingBoxToList(plugin.getRegions().getFloor(), Bukkit.getWorld(plugin.getConfig().getString("world-name")));
         e.blockList().removeAll(wall1);
         e.blockList().removeAll(wall2);
         e.blockList().removeAll(wall3);
@@ -42,17 +41,20 @@ public class GameListeners implements Listener {
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent e) {
         // Check if the game is currently active
-        if (plugin.getGameUtilities().isPlaying()) {
-            // Cancel any player damage
-            e.setCancelled(true);
+        if (e.getEntity() instanceof Player p) {
+            if (plugin.getGameUtility(p).isPlaying()) {
+                // Cancel any player damage
+                e.setCancelled(true);
+            }
         }
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         // Check if the game is currently active
-        if (plugin.getGameUtilities().isPlaying()) {
-            List<Block> placeArea = RegionUtilities.boundingBoxToList(plugin.getRegions().getPlaceArea(), plugin.getGameUtilities().getPlayer().getWorld());
+        Player p = e.getPlayer();
+        if (plugin.getGameUtility(p).isPlaying()) {
+            List<Block> placeArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getPlaceArea(), p.getWorld());
             // Check if the block is not within the place area
             if (!placeArea.contains(e.getBlock())) {
                 // Cancel the break
@@ -67,7 +69,8 @@ public class GameListeners implements Listener {
     @EventHandler
     public void onPlayerItemDrop(PlayerDropItemEvent e) {
         // Check if the game is currently active
-        if (plugin.getGameUtilities().isPlaying()) {
+        Player p = e.getPlayer();
+        if (plugin.getGameUtility(p).isPlaying()) {
             // Cancel any attempt at dropping items
             e.setCancelled(true);
         }
@@ -76,16 +79,17 @@ public class GameListeners implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
         // Check if the game is currently active
-        if (plugin.getGameUtilities().isPlaying()) {
+        Player p = e.getPlayer();
+        if (plugin.getGameUtility(p).isPlaying()) {
             // Make sure any block that isn't in the place area isn't placed
-            List<Block> placeArea = RegionUtilities.boundingBoxToList(plugin.getRegions().getPlaceArea(), plugin.getGameUtilities().getPlayer().getWorld());
+            List<Block> placeArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getPlaceArea(), p.getWorld());
             if (!placeArea.contains(e.getBlock())) {
                 e.setCancelled(true);
             }
             // Make sure the player doesn't lose blocks over time
             e.getItemInHand().setAmount(64);
             // Check if the block was placed in the win area
-            List<Block> winArea = RegionUtilities.boundingBoxToList(plugin.getRegions().getWinArea(), plugin.getGameUtilities().getPlayer().getWorld());
+            List<Block> winArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getWinArea(), p.getWorld());
             if (!winArea.contains(e.getBlock())) return;
             // Calculate if the win area is filled
             boolean didWin = true;
@@ -93,11 +97,10 @@ public class GameListeners implements Listener {
                 if (block.getType() == Material.AIR) didWin = false;
             }
             // Check if the game is paused
-            if (!plugin.getGameUtilities().isPaused()) {
+            if (!plugin.getGameUtility(p).isPaused()) {
                 // Check for win
                 if (didWin) {
                     // Execute win logic
-                    Player p = plugin.getGameUtilities().getPlayer();
                     p.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "STARTING COUNTDOWN!", "", 2, 40, 2);
                     new WinCountdownTask(p, winArea).runTaskTimer(plugin, 50, 30);
                 }
@@ -108,13 +111,10 @@ public class GameListeners implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
         // Check if the game is currently active
-        if (plugin.getGameUtilities().isPlaying()) {
-            // Check if the player that left is the game player
-            Player p = e.getPlayer();
-            if (plugin.getGameUtilities().getPlayer().equals(p)) {
-                // End the game
-                GameUtilities.endGame(p);
-            }
+        Player p = e.getPlayer();
+        if (plugin.getGameUtility(p).isPlaying()) {
+            // End the game
+            plugin.getGameUtility(p).endGame();
         }
     }
 }

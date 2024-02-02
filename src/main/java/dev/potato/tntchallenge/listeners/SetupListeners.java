@@ -1,8 +1,8 @@
 package dev.potato.tntchallenge.listeners;
 
 import dev.potato.tntchallenge.TNTChallenge;
-import dev.potato.tntchallenge.utilities.PlayerSetupRegionUtilities;
-import dev.potato.tntchallenge.utilities.RegionUtilities;
+import dev.potato.tntchallenge.utilities.PlayerSetupRegionUtility;
+import dev.potato.tntchallenge.utilities.RegionUtility;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -62,15 +62,14 @@ public class SetupListeners implements Listener {
                 // Final corner logic
                 if (currentSet.equalsIgnoreCase("winAreaCorner2")) {
                     // Set the corner
-                    PlayerSetupRegionUtilities pru = plugin.getSetupUtilities().get(p);
+                    PlayerSetupRegionUtility psru = plugin.getSetupUtility(p);
                     Block blockInteracted = e.getClickedBlock();
-                    pru.setWinAreaCorner2(blockInteracted);
+                    psru.setWinAreaCorner2(blockInteracted);
                     pData.set(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING, "");
                     // Save all corners to the persistent region utility object
-                    setRegionUtilities(pru);
+                    setRegionUtilities(psru);
                     // Take the player out of setup mode
                     pData.set(new NamespacedKey(plugin, "is-setup"), PersistentDataType.BOOLEAN, false);
-                    plugin.getSetupUtilities().remove(p);
                     p.sendMessage(ChatColor.GREEN + "[TNT Challenge] Setup has been completed! You can now use " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge start" + ChatColor.GREEN + " to start the game.");
                 }
             }
@@ -78,28 +77,28 @@ public class SetupListeners implements Listener {
     }
 
     private void setCorner(Player p, PersistentDataContainer pData, PlayerInteractEvent e, String beingSet, String toSet, String toSetCamelCase) {
-        PlayerSetupRegionUtilities pru = plugin.getSetupUtilities().get(p);
+        PlayerSetupRegionUtility psru = plugin.getSetupUtility(p);
         Block blockInteracted = e.getClickedBlock();
-        if (beingSet.equalsIgnoreCase("WALL 1 CORNER 1")) pru.setWall1Corner1(blockInteracted);
-        if (beingSet.equalsIgnoreCase("WALL 1 CORNER 2")) pru.setWall1Corner2(blockInteracted);
-        if (beingSet.equalsIgnoreCase("WALL 2 CORNER 1")) pru.setWall2Corner1(blockInteracted);
-        if (beingSet.equalsIgnoreCase("WALL 2 CORNER 2")) pru.setWall2Corner2(blockInteracted);
-        if (beingSet.equalsIgnoreCase("WALL 3 CORNER 1")) pru.setWall3Corner1(blockInteracted);
-        if (beingSet.equalsIgnoreCase("WALL 3 CORNER 2")) pru.setWall3Corner2(blockInteracted);
-        if (beingSet.equalsIgnoreCase("WALL 4 CORNER 1")) pru.setWall4Corner1(blockInteracted);
-        if (beingSet.equalsIgnoreCase("WALL 4 CORNER 2")) pru.setWall4Corner2(blockInteracted);
-        if (beingSet.equalsIgnoreCase("FLOOR CORNER 1")) pru.setFloorCorner1(blockInteracted);
-        if (beingSet.equalsIgnoreCase("FLOOR CORNER 2")) pru.setFloorCorner2(blockInteracted);
-        if (beingSet.equalsIgnoreCase("PLACE AREA CORNER 1")) pru.setPlaceAreaCorner1(blockInteracted);
-        if (beingSet.equalsIgnoreCase("PLACE AREA CORNER 2")) pru.setPlaceAreaCorner2(blockInteracted);
-        if (beingSet.equalsIgnoreCase("WIN AREA CORNER 1")) pru.setWinAreaCorner1(blockInteracted);
-        if (beingSet.equalsIgnoreCase("WIN AREA CORNER 2")) pru.setWinAreaCorner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 1 CORNER 1")) psru.setWall1Corner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 1 CORNER 2")) psru.setWall1Corner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 2 CORNER 1")) psru.setWall2Corner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 2 CORNER 2")) psru.setWall2Corner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 3 CORNER 1")) psru.setWall3Corner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 3 CORNER 2")) psru.setWall3Corner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 4 CORNER 1")) psru.setWall4Corner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WALL 4 CORNER 2")) psru.setWall4Corner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("FLOOR CORNER 1")) psru.setFloorCorner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("FLOOR CORNER 2")) psru.setFloorCorner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("PLACE AREA CORNER 1")) psru.setPlaceAreaCorner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("PLACE AREA CORNER 2")) psru.setPlaceAreaCorner2(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WIN AREA CORNER 1")) psru.setWinAreaCorner1(blockInteracted);
+        if (beingSet.equalsIgnoreCase("WIN AREA CORNER 2")) psru.setWinAreaCorner2(blockInteracted);
         pData.set(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING, toSetCamelCase);
         p.sendMessage(ChatColor.YELLOW + "You are now setting: " + ChatColor.WHITE + ChatColor.BOLD + toSet);
     }
 
-    private void setRegionUtilities(PlayerSetupRegionUtilities pru) {
-        RegionUtilities regions = plugin.getRegions();
+    private void setRegionUtilities(PlayerSetupRegionUtility pru) {
+        RegionUtility regions = plugin.getRegions();
         Block wall1Corner1 = pru.getWall1Corner1();
         Block wall1Corner2 = pru.getWall1Corner2();
         regions.setWall1(new BoundingBox(wall1Corner1.getX(), wall1Corner1.getY(), wall1Corner1.getZ(), wall1Corner2.getX(), wall1Corner2.getY(), wall1Corner2.getZ()));

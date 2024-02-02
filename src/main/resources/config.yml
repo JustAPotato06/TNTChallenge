@@ -1,3 +1,12 @@
+####################
+#                  #
+#  WORLD SETTINGS  #
+#                  #
+####################
+
+# The world name for the world you'll be playing in
+world-name: world
+
 ###################
 #                 #
 #  GAME SETTINGS  #

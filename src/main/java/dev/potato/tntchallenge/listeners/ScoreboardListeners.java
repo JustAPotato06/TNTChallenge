@@ -1,7 +1,7 @@
 package dev.potato.tntchallenge.listeners;
 
 import dev.potato.tntchallenge.TNTChallenge;
-import dev.potato.tntchallenge.utilities.PlayerScoreboardUtilities;
+import dev.potato.tntchallenge.utilities.PlayerScoreboardUtility;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,9 +22,9 @@ public class ScoreboardListeners implements Listener {
         if (pData.has(new NamespacedKey(plugin, "update-scoreboard"), PersistentDataType.BOOLEAN)) {
             if (pData.get(new NamespacedKey(plugin, "update-scoreboard"), PersistentDataType.BOOLEAN)) {
                 // Update the blocks placed scoreboard value
-                PlayerScoreboardUtilities scoreboardUtility = plugin.getScoreboardUtilities().get(p);
-                scoreboardUtility.setBlocksPlaced(scoreboardUtility.getBlocksPlaced() + 1);
-                scoreboardUtility.givePlayerScoreboard(p, true);
+                PlayerScoreboardUtility psu = plugin.getScoreboardUtility(p);
+                psu.setBlocksPlaced(psu.getBlocksPlaced() + 1);
+                psu.givePlayerScoreboard(false);
             }
         }
     }

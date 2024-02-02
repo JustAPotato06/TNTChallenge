@@ -9,11 +9,16 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.*;
 
-public class PlayerScoreboardUtilities {
+public class PlayerScoreboardUtility {
     private long blocksPlaced;
     private long failedAttempts;
     private long tntSpawned;
     private long wins;
+    private Player player;
+
+    public PlayerScoreboardUtility(Player player) {
+        this.player = player;
+    }
 
     public long getBlocksPlaced() {
         return blocksPlaced;
@@ -47,15 +52,15 @@ public class PlayerScoreboardUtilities {
         this.wins = wins;
     }
 
-    public void givePlayerScoreboard(Player p, boolean isUpdate) {
+    public void givePlayerScoreboard(boolean shouldInitialize) {
         TNTChallenge plugin = TNTChallenge.getPlugin();
-        PersistentDataContainer pData = p.getPersistentDataContainer();
+        PersistentDataContainer pData = player.getPersistentDataContainer();
         pData.set(new NamespacedKey(plugin, "update-scoreboard"), PersistentDataType.BOOLEAN, true);
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard scoreboard = manager.getNewScoreboard();
         Objective objective = scoreboard.registerNewObjective("Game Stats", Criteria.DUMMY, ChatColor.GOLD + "" + ChatColor.BOLD + "Game Stats");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        if (!isUpdate) {
+        if (shouldInitialize) {
             setBlocksPlaced(0);
             setWins(0);
             setFailedAttempts(0);
@@ -69,12 +74,15 @@ public class PlayerScoreboardUtilities {
         score3.setScore(2);
         score2.setScore(3);
         score1.setScore(4);
-        p.setScoreboard(scoreboard);
+        player.setScoreboard(scoreboard);
     }
 
-    public void removePlayerScoreboard(Player p) {
+    public void removePlayerScoreboard() {
+        TNTChallenge plugin = TNTChallenge.getPlugin();
+        PersistentDataContainer pData = player.getPersistentDataContainer();
+        pData.set(new NamespacedKey(plugin, "update-scoreboard"), PersistentDataType.BOOLEAN, false);
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard scoreboard = manager.getNewScoreboard();
-        p.setScoreboard(scoreboard);
+        player.setScoreboard(scoreboard);
     }
 }

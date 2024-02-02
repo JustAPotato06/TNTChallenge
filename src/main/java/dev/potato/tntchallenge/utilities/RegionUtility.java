@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RegionUtilities implements Serializable {
+public class RegionUtility implements Serializable {
     private BoundingBox wall1;
     private BoundingBox wall2;
     private BoundingBox wall3;
@@ -82,7 +82,7 @@ public class RegionUtilities implements Serializable {
         isSetup = setup;
     }
 
-    public static List<Block> boundingBoxToList(BoundingBox boundingBox, World world) {
+    public List<Block> boundingBoxToList(BoundingBox boundingBox, World world) {
         List<Block> blocksFound = new ArrayList<>();
         for (int x = (int) boundingBox.getMinX(); x <= (int) boundingBox.getMaxX(); x++) {
             for (int y = (int) boundingBox.getMinY(); y <= (int) boundingBox.getMaxY(); y++) {
