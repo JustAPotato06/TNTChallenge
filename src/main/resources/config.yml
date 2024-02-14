@@ -13,6 +13,9 @@ world-name: world
 #                 #
 ###################
 
+# NOTICE: These settings will ONLY affect singleplayer play!
+# Game configuration for Tiktok lives is handled by the plugin automatically
+
 # The chance, in percentage, that a TNT has to spawn every second after the game starts
 # It's recommended that this value stays below 10 (or 10%)
 spawn-chance: 5
@@ -29,3 +32,13 @@ tnt-detonate-time: 60
 # The amount of time, in seconds, that you must have the win area filled in order to trigger a win
 # Reccomended: 10-15 seconds
 countdown-time: 15
+
+#####################
+#                   #
+#  TIKTOK SETTINGS  #
+#                   #
+#####################
+
+# The username of your Tiktok account
+# If this field is filled out, the plugin will automatically use your Tiktok live instead of singeplayer
+tiktok-username:

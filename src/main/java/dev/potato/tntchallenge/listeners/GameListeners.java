@@ -13,6 +13,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -20,6 +21,7 @@ import java.util.List;
 
 public class GameListeners implements Listener {
     private TNTChallenge plugin = TNTChallenge.getPlugin();
+    private boolean isTikTokConnected = plugin.getConfig().isSet("tiktok-username");
 
     @EventHandler
     public void onExplode(BlockExplodeEvent e) {
@@ -42,67 +44,145 @@ public class GameListeners implements Listener {
     public void onPlayerDamage(EntityDamageEvent e) {
         // Check if the game is currently active
         if (e.getEntity() instanceof Player p) {
-            if (plugin.getGameUtility(p).isPlaying()) {
-                // Cancel any player damage
-                e.setCancelled(true);
+            if (isTikTokConnected) {
+                if (plugin.getTiktokGameUtility(p).isPlaying()) {
+                    // Cancel any player damage
+                    e.setCancelled(true);
+                }
+            } else {
+                if (plugin.getGameUtility(p).isPlaying()) {
+                    // Cancel any player damage
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerHungerDeplete(FoodLevelChangeEvent e) {
+        // Check if the game is currently active
+        if (e.getEntity() instanceof Player p) {
+            if (isTikTokConnected) {
+                if (plugin.getTiktokGameUtility(p).isPlaying()) {
+                    // Cancel any player hunger
+                    e.setCancelled(true);
+                }
+            } else {
+                if (plugin.getGameUtility(p).isPlaying()) {
+                    // Cancel any player hunger
+                    e.setCancelled(true);
+                }
             }
         }
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        // Check if the game is currently active
         Player p = e.getPlayer();
-        if (plugin.getGameUtility(p).isPlaying()) {
-            List<Block> placeArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getPlaceArea(), p.getWorld());
-            // Check if the block is not within the place area
-            if (!placeArea.contains(e.getBlock())) {
-                // Cancel the break
-                e.setCancelled(true);
-            } else {
-                // Make sure the broken block doesn't drop as an item
-                e.setDropItems(false);
+        if (isTikTokConnected) {
+            // Check if the game is currently active
+            if (plugin.getTiktokGameUtility(p).isPlaying()) {
+                List<Block> placeArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getPlaceArea(), p.getWorld());
+                // Check if the block is not within the place area
+                if (!placeArea.contains(e.getBlock())) {
+                    // Cancel the break
+                    e.setCancelled(true);
+                } else {
+                    // Make sure the broken block doesn't drop as an item
+                    e.setDropItems(false);
+                }
+            }
+        } else {
+            // Check if the game is currently active
+            if (plugin.getGameUtility(p).isPlaying()) {
+                List<Block> placeArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getPlaceArea(), p.getWorld());
+                // Check if the block is not within the place area
+                if (!placeArea.contains(e.getBlock())) {
+                    // Cancel the break
+                    e.setCancelled(true);
+                } else {
+                    // Make sure the broken block doesn't drop as an item
+                    e.setDropItems(false);
+                }
             }
         }
     }
 
     @EventHandler
     public void onPlayerItemDrop(PlayerDropItemEvent e) {
-        // Check if the game is currently active
         Player p = e.getPlayer();
-        if (plugin.getGameUtility(p).isPlaying()) {
-            // Cancel any attempt at dropping items
-            e.setCancelled(true);
+        if (isTikTokConnected) {
+            // Check if the game is currently active
+            if (plugin.getTiktokGameUtility(p).isPlaying()) {
+                // Cancel any attempt at dropping items
+                e.setCancelled(true);
+            }
+        } else {
+            // Check if the game is currently active
+            if (plugin.getGameUtility(p).isPlaying()) {
+                // Cancel any attempt at dropping items
+                e.setCancelled(true);
+            }
         }
     }
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
-        // Check if the game is currently active
         Player p = e.getPlayer();
-        if (plugin.getGameUtility(p).isPlaying()) {
-            // Make sure any block that isn't in the place area isn't placed
-            List<Block> placeArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getPlaceArea(), p.getWorld());
-            if (!placeArea.contains(e.getBlock())) {
-                e.setCancelled(true);
+        if (isTikTokConnected) {
+            // Check if the game is currently active
+            if (plugin.getTiktokGameUtility(p).isPlaying()) {
+                // Make sure any block that isn't in the place area isn't placed
+                List<Block> placeArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getPlaceArea(), p.getWorld());
+                if (!placeArea.contains(e.getBlock())) {
+                    e.setCancelled(true);
+                }
+                // Make sure the player doesn't lose blocks over time
+                e.getItemInHand().setAmount(64);
+                // Check if the block was placed in the win area
+                List<Block> winArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getWinArea(), p.getWorld());
+                if (!winArea.contains(e.getBlock())) return;
+                // Calculate if the win area is filled
+                boolean didWin = true;
+                for (Block block : winArea) {
+                    if (block.getType() == Material.AIR) didWin = false;
+                }
+                // Check if the game is paused
+                if (!plugin.getTiktokGameUtility(p).isPaused()) {
+                    // Check for win
+                    if (didWin) {
+                        // Execute win logic
+                        p.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "STARTING COUNTDOWN!", "", 2, 40, 2);
+                        new WinCountdownTask(p, winArea).runTaskTimer(plugin, 50, 30);
+                    }
+                }
             }
-            // Make sure the player doesn't lose blocks over time
-            e.getItemInHand().setAmount(64);
-            // Check if the block was placed in the win area
-            List<Block> winArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getWinArea(), p.getWorld());
-            if (!winArea.contains(e.getBlock())) return;
-            // Calculate if the win area is filled
-            boolean didWin = true;
-            for (Block block : winArea) {
-                if (block.getType() == Material.AIR) didWin = false;
-            }
-            // Check if the game is paused
-            if (!plugin.getGameUtility(p).isPaused()) {
-                // Check for win
-                if (didWin) {
-                    // Execute win logic
-                    p.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "STARTING COUNTDOWN!", "", 2, 40, 2);
-                    new WinCountdownTask(p, winArea).runTaskTimer(plugin, 50, 30);
+        } else {
+            // Check if the game is currently active
+            if (plugin.getGameUtility(p).isPlaying()) {
+                // Make sure any block that isn't in the place area isn't placed
+                List<Block> placeArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getPlaceArea(), p.getWorld());
+                if (!placeArea.contains(e.getBlock())) {
+                    e.setCancelled(true);
+                }
+                // Make sure the player doesn't lose blocks over time
+                e.getItemInHand().setAmount(64);
+                // Check if the block was placed in the win area
+                List<Block> winArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getWinArea(), p.getWorld());
+                if (!winArea.contains(e.getBlock())) return;
+                // Calculate if the win area is filled
+                boolean didWin = true;
+                for (Block block : winArea) {
+                    if (block.getType() == Material.AIR) didWin = false;
+                }
+                // Check if the game is paused
+                if (!plugin.getGameUtility(p).isPaused()) {
+                    // Check for win
+                    if (didWin) {
+                        // Execute win logic
+                        p.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "STARTING COUNTDOWN!", "", 2, 40, 2);
+                        new WinCountdownTask(p, winArea).runTaskTimer(plugin, 50, 30);
+                    }
                 }
             }
         }
@@ -110,11 +190,19 @@ public class GameListeners implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
-        // Check if the game is currently active
         Player p = e.getPlayer();
-        if (plugin.getGameUtility(p).isPlaying()) {
-            // End the game
-            plugin.getGameUtility(p).endGame();
+        if (isTikTokConnected) {
+            // Check if the game is currently active
+            if (plugin.getTiktokGameUtility(p).isPlaying()) {
+                // End the game
+                plugin.getTiktokGameUtility(p).endGame();
+            }
+        } else {
+            // Check if the game is currently active
+            if (plugin.getGameUtility(p).isPlaying()) {
+                // End the game
+                plugin.getGameUtility(p).endGame();
+            }
         }
     }
 }

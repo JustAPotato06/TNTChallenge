@@ -1,7 +1,6 @@
 package dev.potato.tntchallenge.utilities;
 
 import dev.potato.tntchallenge.TNTChallenge;
-import dev.potato.tntchallenge.tasks.TNTSpawnTask;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -11,19 +10,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.BoundingBox;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameUtility {
+public class TiktokGameUtility {
     private boolean isPlaying;
     private boolean isPaused;
     private Player player;
-    private BukkitTask tntSpawningTask;
 
-    public GameUtility(boolean isPlaying, boolean isPaused, Player player) {
+    public TiktokGameUtility(boolean isPlaying, boolean isPaused, Player player) {
         this.isPlaying = isPlaying;
         this.isPaused = isPaused;
         this.player = player;
@@ -45,33 +42,19 @@ public class GameUtility {
         isPaused = paused;
     }
 
-    public Player getPlayer() {
-        return player;
-    }
-
-    public BukkitTask getTntSpawningTask() {
-        return tntSpawningTask;
-    }
-
-    public void setTntSpawningTask(BukkitTask tntSpawningTask) {
-        this.tntSpawningTask = tntSpawningTask;
-    }
-
     public void startGame() {
         // Initialization
         TNTChallenge plugin = TNTChallenge.getPlugin();
         player.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "Game has started!", ChatColor.WHITE + "" + ChatColor.BOLD + "Good luck!", 2, 60, 2);
+        plugin.getTiktokLiveUtility().setPlayer(player);
 
         // Scoreboard
         plugin.getScoreboardUtility(player).givePlayerScoreboard(true);
 
         // Game Utilities
-        GameUtility gameUtility = plugin.getGameUtility(player);
-        gameUtility.setPlaying(true);
-        gameUtility.setPaused(false);
-
-        // TNT Spawning
-        gameUtility.setTntSpawningTask(new TNTSpawnTask(player).runTaskTimer(plugin, 70, 20));
+        TiktokGameUtility tiktokGameUtility = plugin.getTiktokGameUtility(player);
+        tiktokGameUtility.setPlaying(true);
+        tiktokGameUtility.setPaused(false);
 
         // Player Inventory
         player.getInventory().clear();
@@ -109,18 +92,15 @@ public class GameUtility {
     public void endGame() {
         // De-Initialization
         TNTChallenge plugin = TNTChallenge.getPlugin();
-        player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "Game has ended!", ChatColor.WHITE + "" + ChatColor.BOLD + "Thanks for playing!", 2, 60, 2);
+        player.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "Game has stopped!", ChatColor.WHITE + "" + ChatColor.BOLD + "Thanks for playing!", 2, 60, 2);
 
         // Scoreboard
         plugin.getScoreboardUtility(player).removePlayerScoreboard();
 
         // Game Utilities
-        GameUtility gameUtility = plugin.getGameUtility(player);
-        gameUtility.setPlaying(false);
-        gameUtility.setPaused(false);
-
-        // TNT Spawning
-        gameUtility.getTntSpawningTask().cancel();
+        TiktokGameUtility tiktokGameUtility = plugin.getTiktokGameUtility(player);
+        tiktokGameUtility.setPlaying(false);
+        tiktokGameUtility.setPaused(false);
 
         // Player Inventory
         player.getInventory().clear();

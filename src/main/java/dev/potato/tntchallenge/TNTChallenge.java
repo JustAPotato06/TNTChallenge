@@ -5,10 +5,7 @@ import dev.potato.tntchallenge.configs.RegionConfig;
 import dev.potato.tntchallenge.listeners.GameListeners;
 import dev.potato.tntchallenge.listeners.ScoreboardListeners;
 import dev.potato.tntchallenge.listeners.SetupListeners;
-import dev.potato.tntchallenge.utilities.GameUtility;
-import dev.potato.tntchallenge.utilities.PlayerScoreboardUtility;
-import dev.potato.tntchallenge.utilities.PlayerSetupRegionUtility;
-import dev.potato.tntchallenge.utilities.RegionUtility;
+import dev.potato.tntchallenge.utilities.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -28,6 +25,8 @@ public final class TNTChallenge extends JavaPlugin {
     private final HashMap<Player, PlayerSetupRegionUtility> setupUtilities = new HashMap<>();
     private final HashMap<Player, PlayerScoreboardUtility> scoreboardUtilities = new HashMap<>();
     private final HashMap<Player, GameUtility> gameUtilities = new HashMap<>();
+    private final HashMap<Player, TiktokGameUtility> tiktokGameUtilities = new HashMap<>();
+    private final TiktokLiveUtility tiktokLiveUtility = new TiktokLiveUtility();
 
     public static TNTChallenge getPlugin() {
         return plugin;
@@ -74,14 +73,25 @@ public final class TNTChallenge extends JavaPlugin {
         return gameUtility;
     }
 
+    public TiktokGameUtility getTiktokGameUtility(Player p) {
+        TiktokGameUtility tiktokGameUtility;
+        if (tiktokGameUtilities.containsKey(p)) {
+            tiktokGameUtility = tiktokGameUtilities.get(p);
+        } else {
+            tiktokGameUtility = new TiktokGameUtility(false, false, p);
+            tiktokGameUtilities.put(p, tiktokGameUtility);
+        }
+        return tiktokGameUtility;
+    }
+
+    public TiktokLiveUtility getTiktokLiveUtility() {
+        return tiktokLiveUtility;
+    }
+
     @Override
     public void onEnable() {
         // Config.yml
-        getConfig().options().copyDefaults(true);
-        saveDefaultConfig();
-        RegionConfig.setup();
-        RegionConfig.get().options().copyDefaults(true);
-        RegionConfig.save();
+        registerConfigurations();
 
         // Initialization
         plugin = this;
@@ -92,6 +102,9 @@ public final class TNTChallenge extends JavaPlugin {
 
         // Listeners
         registerListeners();
+
+        // Tiktok Live
+        registerTiktokLive();
     }
 
     @Override
@@ -146,6 +159,17 @@ public final class TNTChallenge extends JavaPlugin {
         }
     }
 
+    private void registerConfigurations() {
+        // Config.yml
+        getConfig().options().copyDefaults(true);
+        saveDefaultConfig();
+
+        // Regions.yml
+        RegionConfig.setup();
+        RegionConfig.get().options().copyDefaults(true);
+        RegionConfig.save();
+    }
+
     private void registerCommands() {
         getCommand("tntchallenge").setExecutor(new TNTChallengeCommand());
     }
@@ -154,5 +178,14 @@ public final class TNTChallenge extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SetupListeners(), this);
         getServer().getPluginManager().registerEvents(new ScoreboardListeners(), this);
         getServer().getPluginManager().registerEvents(new GameListeners(), this);
+    }
+
+    private void registerTiktokLive() {
+        if (getConfig().isSet("tiktok-username")) {
+            TiktokLiveUtility.init();
+        } else {
+            Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[TNT Challenge] No Tiktok username was found in the config.yml!");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "[TNT Challenge] Game mode will be set to singleplayer by default.");
+        }
     }
 }

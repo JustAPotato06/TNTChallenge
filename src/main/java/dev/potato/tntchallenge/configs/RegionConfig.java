@@ -35,8 +35,4 @@ public class RegionConfig {
             Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[TNT Challenge] Could not save regions.yml!");
         }
     }
-
-    public static void reload() {
-        customFile = YamlConfiguration.loadConfiguration(file);
-    }
 }

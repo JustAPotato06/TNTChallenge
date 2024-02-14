@@ -21,6 +21,7 @@ import java.util.List;
 
 public class TNTChallengeCommand implements TabExecutor {
     private TNTChallenge plugin = TNTChallenge.getPlugin();
+    private boolean isTikTokConnected = plugin.getConfig().isSet("tiktok-username");
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -57,14 +58,26 @@ public class TNTChallengeCommand implements TabExecutor {
     }
 
     private void help(Player p) {
-        p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "========= TNT CHALLENGE =========");
-        p.sendMessage(ChatColor.YELLOW + "/tntchallenge setup [cancel]" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Allows you to configure the play area regions for the plugin");
-        p.sendMessage(ChatColor.YELLOW + "/tntchallenge resetregions" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Clears all currently saved regions");
-        p.sendMessage(ChatColor.YELLOW + "/tntchallenge start" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Starts the game");
-        p.sendMessage(ChatColor.YELLOW + "/tntchallenge stop" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Stops the game");
-        p.sendMessage(ChatColor.YELLOW + "/tntchallenge pause" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Pauses the game, disabling TNT spawns and the ability to trigger the countdown");
-        p.sendMessage(ChatColor.YELLOW + "/tntchallenge resume" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Resumes all functions and allows you to play again from where you left off");
-        p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "================================");
+        // Check for Tiktok live connectivity
+        if (isTikTokConnected) {
+            p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "========= TNT CHALLENGE =========");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge setup [cancel]" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Allows you to configure the play area regions for the plugin");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge resetregions" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Clears all currently saved regions");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge start" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Starts the game, allowing users to trigger TNT spawns on gift");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge stop" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Stops the game, disabling TNT spawning on gift and clearing any progress made");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge pause" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Pauses the game, disabling TNT spawns on gift and the ability to trigger the countdown");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge resume" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Resumes all functions and allows viewers to spawn TNT again");
+            p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "================================");
+        } else {
+            p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "========= TNT CHALLENGE =========");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge setup [cancel]" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Allows you to configure the play area regions for the plugin");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge resetregions" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Clears all currently saved regions");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge start" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Starts the game");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge stop" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Stops the game");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge pause" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Pauses the game, disabling TNT spawns and the ability to trigger the countdown");
+            p.sendMessage(ChatColor.YELLOW + "/tntchallenge resume" + ChatColor.WHITE + " - " + ChatColor.GRAY + "Resumes all functions and allows you to play again from where you left off");
+            p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "================================");
+        }
     }
 
     private void setup(Player p, String[] args) {
@@ -123,69 +136,153 @@ public class TNTChallengeCommand implements TabExecutor {
     }
 
     private void resetRegions(Player p) {
-        plugin.setRegions(new RegionUtility());
-        p.sendMessage(ChatColor.GREEN + "[TNT Challenge] All previously defined regions have been reset! You can now do " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge setup" + ChatColor.GREEN + " to set them again.");
+        // Check for Tiktok live connectivity
+        if (isTikTokConnected) {
+            // Check if the game is going
+            if (!plugin.getTiktokGameUtility(p).isPlaying()) {
+                // Reset regions
+                plugin.setRegions(new RegionUtility());
+                p.sendMessage(ChatColor.GREEN + "[TNT Challenge] All previously defined regions have been reset! You can now do " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge setup" + ChatColor.GREEN + " to set them again.");
+            } else {
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] The game is currently going! Regions can't be reset at this time.");
+            }
+        } else {
+            // Check if the game is going
+            if (!plugin.getGameUtility(p).isPlaying()) {
+                // Reset regions
+                plugin.setRegions(new RegionUtility());
+                p.sendMessage(ChatColor.GREEN + "[TNT Challenge] All previously defined regions have been reset! You can now do " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge setup" + ChatColor.GREEN + " to set them again.");
+            } else {
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] A game is currently going! Regions can't be reset at this time.");
+            }
+        }
     }
 
     private void start(Player p, String[] args) {
-        // Check if the game is going
-        if (plugin.getGameUtility(p).isPlaying()) {
-            p.sendMessage(ChatColor.RED + "[TNT Challenge] There is already a game currently going!");
-            return;
-        }
-        if (args.length == 1) {
-            // Check if the regions are configured
-            if (plugin.getRegions().isSetup()) {
-                // Start the game
-                plugin.getGameUtility(p).startGame();
+        // Check for Tiktok live connectivity
+        if (isTikTokConnected) {
+            // Check if the game is going
+            if (plugin.getTiktokGameUtility(p).isPlaying()) {
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] There is already a game currently going!");
+                return;
+            }
+            if (args.length == 1) {
+                // Check if the regions are configured
+                if (plugin.getRegions().isSetup()) {
+                    // Start the game
+                    plugin.getTiktokGameUtility(p).startGame();
+                } else {
+                    p.sendMessage(ChatColor.RED + "[TNT Challenge] You have not yet defined the proper regions! Please use " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge setup" + ChatColor.RED + " first.");
+                }
             } else {
-                p.sendMessage(ChatColor.RED + "[TNT Challenge] You have not yet defined the proper regions! Please use " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge setup" + ChatColor.RED + " first.");
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] Incorrect command usage! Please try again.");
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] Example: /tntchallenge start");
             }
         } else {
-            p.sendMessage(ChatColor.RED + "[TNT Challenge] Incorrect command usage! Please try again.");
-            p.sendMessage(ChatColor.RED + "[TNT Challenge] Example: /tntchallenge start");
+            // Check if the game is going
+            if (plugin.getGameUtility(p).isPlaying()) {
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] There is already a game currently going!");
+                return;
+            }
+            if (args.length == 1) {
+                // Check if the regions are configured
+                if (plugin.getRegions().isSetup()) {
+                    // Start the game
+                    plugin.getGameUtility(p).startGame();
+                } else {
+                    p.sendMessage(ChatColor.RED + "[TNT Challenge] You have not yet defined the proper regions! Please use " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge setup" + ChatColor.RED + " first.");
+                }
+            } else {
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] Incorrect command usage! Please try again.");
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] Example: /tntchallenge start");
+            }
         }
     }
 
     private void stop(Player p, String[] args) {
-        if (args.length == 1) {
-            // Check if the game is going
-            if (plugin.getGameUtility(p).isPlaying()) {
-                // End the game
-                plugin.getGameUtility(p).endGame();
+        // Check for Tiktok live connectivity
+        if (isTikTokConnected) {
+            if (args.length == 1) {
+                // Check if the game is going
+                if (plugin.getTiktokGameUtility(p).isPlaying()) {
+                    // End the game
+                    plugin.getTiktokGameUtility(p).endGame();
+                } else {
+                    p.sendMessage(ChatColor.RED + "[TNT Challenge] The game is not currently going!");
+                }
             } else {
-                p.sendMessage(ChatColor.RED + "[TNT Challenge] There is no game currently going!");
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] Incorrect command usage! Please try again.");
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] Example: /tntchallenge stop");
             }
         } else {
-            p.sendMessage(ChatColor.RED + "[TNT Challenge] Incorrect command usage! Please try again.");
-            p.sendMessage(ChatColor.RED + "[TNT Challenge] Example: /tntchallenge stop");
+            if (args.length == 1) {
+                // Check if the game is going
+                if (plugin.getGameUtility(p).isPlaying()) {
+                    // End the game
+                    plugin.getGameUtility(p).endGame();
+                } else {
+                    p.sendMessage(ChatColor.RED + "[TNT Challenge] There is no game currently going!");
+                }
+            } else {
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] Incorrect command usage! Please try again.");
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] Example: /tntchallenge stop");
+            }
         }
     }
 
     private void pause(Player p) {
-        // Check if the game is going
-        if (plugin.getGameUtility(p).isPlaying()) {
-            // Pause the game
-            plugin.getGameUtility(p).setPaused(true);
-            p.sendTitle(ChatColor.YELLOW + "" + ChatColor.BOLD + "Game is now paused!", ChatColor.WHITE + "" + ChatColor.BOLD + "Use the resume command to continue!", 2, 60, 2);
+        // Check for Tiktok live connectivity
+        if (isTikTokConnected) {
+            // Check if the game is going
+            if (plugin.getTiktokGameUtility(p).isPlaying()) {
+                // Pause the game
+                plugin.getTiktokGameUtility(p).setPaused(true);
+                p.sendTitle(ChatColor.YELLOW + "" + ChatColor.BOLD + "Game is now paused!", ChatColor.WHITE + "" + ChatColor.BOLD + "Use the resume command to continue!", 2, 60, 2);
+            } else {
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] The game is not currently going!");
+            }
         } else {
-            p.sendMessage(ChatColor.RED + "[TNT Challenge] There is no game currently going!");
+            // Check if the game is going
+            if (plugin.getGameUtility(p).isPlaying()) {
+                // Pause the game
+                plugin.getGameUtility(p).setPaused(true);
+                p.sendTitle(ChatColor.YELLOW + "" + ChatColor.BOLD + "Game is now paused!", ChatColor.WHITE + "" + ChatColor.BOLD + "Use the resume command to continue!", 2, 60, 2);
+            } else {
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] There is no game currently going!");
+            }
         }
     }
 
     private void resume(Player p) {
-        // Check if the game is going
-        if (plugin.getGameUtility(p).isPlaying()) {
-            // Check if the game is paused
-            if (plugin.getGameUtility(p).isPaused()) {
-                // Resume the game
-                plugin.getGameUtility(p).setPaused(false);
-                p.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "Game is now resumed!", ChatColor.WHITE + "" + ChatColor.BOLD + "Use the pause command to pause at any time!", 2, 60, 2);
+        // Check for Tiktok live connectivity
+        if (isTikTokConnected) {
+            // Check if the game is going
+            if (plugin.getTiktokGameUtility(p).isPlaying()) {
+                // Check if the game is paused
+                if (plugin.getTiktokGameUtility(p).isPaused()) {
+                    // Resume the game
+                    plugin.getTiktokGameUtility(p).setPaused(false);
+                    p.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "Game is now resumed!", ChatColor.WHITE + "" + ChatColor.BOLD + "Use the pause command to pause at any time!", 2, 60, 2);
+                } else {
+                    p.sendMessage(ChatColor.RED + "[TNT Challenge] The game is already going!");
+                }
             } else {
-                p.sendMessage(ChatColor.RED + "[TNT Challenge] The game is already going!");
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] The game is not currently going!");
             }
         } else {
-            p.sendMessage(ChatColor.RED + "[TNT Challenge] There is no game currently going!");
+            // Check if the game is going
+            if (plugin.getGameUtility(p).isPlaying()) {
+                // Check if the game is paused
+                if (plugin.getGameUtility(p).isPaused()) {
+                    // Resume the game
+                    plugin.getGameUtility(p).setPaused(false);
+                    p.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "Game is now resumed!", ChatColor.WHITE + "" + ChatColor.BOLD + "Use the pause command to pause at any time!", 2, 60, 2);
+                } else {
+                    p.sendMessage(ChatColor.RED + "[TNT Challenge] The game is already going!");
+                }
+            } else {
+                p.sendMessage(ChatColor.RED + "[TNT Challenge] There is no game currently going!");
+            }
         }
     }
 }

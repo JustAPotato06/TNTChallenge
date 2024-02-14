@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'dev.potato'
@@ -15,10 +16,20 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
+    maven {
+        url = "https://jitpack.io"
+    }
 }
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT"
+    implementation "com.github.jwdeveloper.TikTok-Live-Java:Client:1.1.0-Release"
+}
+
+shadowJar {
+    minimize()
+    File file = new File("C:\\Users\\kaden\\OneDrive\\Documents\\[1] My Files\\Development\\Test Server (Spigot)\\plugins")
+    setDestinationDirectory(file)
 }
 
 def targetJavaVersion = 17

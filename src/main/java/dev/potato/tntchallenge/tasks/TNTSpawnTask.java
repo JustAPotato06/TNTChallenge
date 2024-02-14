@@ -37,8 +37,6 @@ public class TNTSpawnTask extends BukkitRunnable {
                 TNTPrimed tnt = p.getWorld().spawn(p.getLocation(), TNTPrimed.class);
                 int detonateTime = plugin.getConfig().getInt("tnt-detonate-time");
                 tnt.setFuseTicks(detonateTime);
-                tnt.setCustomName(ChatColor.GOLD + "" + ChatColor.BOLD + "Power Level: " + ChatColor.WHITE + ChatColor.BOLD + power);
-                tnt.setCustomNameVisible(true);
                 // Start TNT handle explosion task
                 new BukkitRunnable() {
                     @Override

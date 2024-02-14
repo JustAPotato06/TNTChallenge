@@ -26,6 +26,7 @@ public class SetupListeners implements Listener {
         // Initialization
         Player p = e.getPlayer();
         PersistentDataContainer pData = p.getPersistentDataContainer();
+        if (p.getInventory().getItemInMainHand().getItemMeta() == null) return;
         // Check for if the player is in setup mode
         if (pData.has(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING)) {
             // Grab what they are currently setting
