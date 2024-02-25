@@ -1,20 +1,13 @@
 package dev.potato.tntchallenge.commands;
 
 import dev.potato.tntchallenge.TNTChallenge;
+import dev.potato.tntchallenge.utilities.PlayerSetupRegionUtility;
 import dev.potato.tntchallenge.utilities.RegionUtility;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,45 +80,27 @@ public class TNTChallengeCommand implements TabExecutor {
             p.sendMessage(ChatColor.YELLOW + "[TNT Challenge] If you'd like to reset your regions, please use the " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge resetregions" + ChatColor.YELLOW + " command!");
             return;
         }
-        // Make sure if the player doesn't have a setup boolean, change it to false
-        PersistentDataContainer pData = p.getPersistentDataContainer();
-        if (!pData.has(new NamespacedKey(plugin, "is-setup"), PersistentDataType.BOOLEAN)) {
-            pData.set(new NamespacedKey(plugin, "is-setup"), PersistentDataType.BOOLEAN, false);
-        }
+
+        boolean isInSetup = PlayerSetupRegionUtility.isInSetup(p);
+
         // Check if they want to leave setup mode
         if (args.length == 2 && args[1].equalsIgnoreCase("cancel")) {
             // Check if they're currently in setup mode
-            if (pData.get(new NamespacedKey(plugin, "is-setup"), PersistentDataType.BOOLEAN)) {
+            if (isInSetup) {
                 // Leave setup mode
-                pData.set(new NamespacedKey(plugin, "is-setup"), PersistentDataType.BOOLEAN, false);
-                p.sendMessage(ChatColor.GREEN + "[TNT Challenge] You have successfully left setup mode!");
+                PlayerSetupRegionUtility.leaveSetup(p);
             } else {
                 p.sendMessage(ChatColor.RED + "[TNT Challenge] You are not currently in setup mode!");
             }
             return;
         }
+
         // Check if they want to start setup
         if (args.length == 1) {
             // Check if they aren't already in setup mode
-            if (!pData.get(new NamespacedKey(plugin, "is-setup"), PersistentDataType.BOOLEAN)) {
-                // Give the player a setup stick
-                ItemStack setupStick = new ItemStack(Material.STICK);
-                ItemMeta setupStickMeta = setupStick.getItemMeta();
-                setupStickMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "SETUP STICK");
-                setupStickMeta.addEnchant(Enchantment.DIG_SPEED, 5, true);
-                setupStickMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-                setupStick.setItemMeta(setupStickMeta);
-                p.getInventory().setItemInMainHand(setupStick);
-                // Put them in setup mode
-                pData.set(new NamespacedKey(plugin, "is-setup"), PersistentDataType.BOOLEAN, true);
-                // Initiate setup
-                pData.set(new NamespacedKey(plugin, "current-set"), PersistentDataType.STRING, "wall1Corner1");
-                p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "============ " + ChatColor.WHITE + ChatColor.BOLD + "TNT Challenge" + ChatColor.GOLD + ChatColor.BOLD + " ==============");
-                p.sendMessage(ChatColor.YELLOW + "Welcome to setup mode!");
-                p.sendMessage(ChatColor.YELLOW + "You are now configuring " + ChatColor.WHITE + ChatColor.BOLD + "WALL 1 CORNER 1");
-                p.sendMessage(ChatColor.YELLOW + "Please right click the first corner to continue.");
-                p.sendMessage(ChatColor.YELLOW + "At any point during setup, you can use " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge setup cancel" + ChatColor.YELLOW + " to leave setup mode.");
-                p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "=======================================");
+            if (!isInSetup) {
+                // Enter setup mode
+                PlayerSetupRegionUtility.enterSetup(p);
             } else {
                 p.sendMessage(ChatColor.RED + "[TNT Challenge] You are already in setup mode!");
             }
@@ -148,7 +123,7 @@ public class TNTChallengeCommand implements TabExecutor {
             }
         } else {
             // Check if the game is going
-            if (!plugin.getGameUtility(p).isPlaying()) {
+            if (!plugin.getSingeplayerGameUtility(p).isPlaying()) {
                 // Reset regions
                 plugin.setRegions(new RegionUtility());
                 p.sendMessage(ChatColor.GREEN + "[TNT Challenge] All previously defined regions have been reset! You can now do " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge setup" + ChatColor.GREEN + " to set them again.");
@@ -166,6 +141,7 @@ public class TNTChallengeCommand implements TabExecutor {
                 p.sendMessage(ChatColor.RED + "[TNT Challenge] There is already a game currently going!");
                 return;
             }
+
             if (args.length == 1) {
                 // Check if the regions are configured
                 if (plugin.getRegions().isSetup()) {
@@ -180,15 +156,16 @@ public class TNTChallengeCommand implements TabExecutor {
             }
         } else {
             // Check if the game is going
-            if (plugin.getGameUtility(p).isPlaying()) {
+            if (plugin.getSingeplayerGameUtility(p).isPlaying()) {
                 p.sendMessage(ChatColor.RED + "[TNT Challenge] There is already a game currently going!");
                 return;
             }
+
             if (args.length == 1) {
                 // Check if the regions are configured
                 if (plugin.getRegions().isSetup()) {
                     // Start the game
-                    plugin.getGameUtility(p).startGame();
+                    plugin.getSingeplayerGameUtility(p).startGame();
                 } else {
                     p.sendMessage(ChatColor.RED + "[TNT Challenge] You have not yet defined the proper regions! Please use " + ChatColor.WHITE + ChatColor.BOLD + "/tntchallenge setup" + ChatColor.RED + " first.");
                 }
@@ -217,9 +194,9 @@ public class TNTChallengeCommand implements TabExecutor {
         } else {
             if (args.length == 1) {
                 // Check if the game is going
-                if (plugin.getGameUtility(p).isPlaying()) {
+                if (plugin.getSingeplayerGameUtility(p).isPlaying()) {
                     // End the game
-                    plugin.getGameUtility(p).endGame();
+                    plugin.getSingeplayerGameUtility(p).endGame();
                 } else {
                     p.sendMessage(ChatColor.RED + "[TNT Challenge] There is no game currently going!");
                 }
@@ -243,9 +220,9 @@ public class TNTChallengeCommand implements TabExecutor {
             }
         } else {
             // Check if the game is going
-            if (plugin.getGameUtility(p).isPlaying()) {
+            if (plugin.getSingeplayerGameUtility(p).isPlaying()) {
                 // Pause the game
-                plugin.getGameUtility(p).setPaused(true);
+                plugin.getSingeplayerGameUtility(p).setPaused(true);
                 p.sendTitle(ChatColor.YELLOW + "" + ChatColor.BOLD + "Game is now paused!", ChatColor.WHITE + "" + ChatColor.BOLD + "Use the resume command to continue!", 2, 60, 2);
             } else {
                 p.sendMessage(ChatColor.RED + "[TNT Challenge] There is no game currently going!");
@@ -271,11 +248,11 @@ public class TNTChallengeCommand implements TabExecutor {
             }
         } else {
             // Check if the game is going
-            if (plugin.getGameUtility(p).isPlaying()) {
+            if (plugin.getSingeplayerGameUtility(p).isPlaying()) {
                 // Check if the game is paused
-                if (plugin.getGameUtility(p).isPaused()) {
+                if (plugin.getSingeplayerGameUtility(p).isPaused()) {
                     // Resume the game
-                    plugin.getGameUtility(p).setPaused(false);
+                    plugin.getSingeplayerGameUtility(p).setPaused(false);
                     p.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "Game is now resumed!", ChatColor.WHITE + "" + ChatColor.BOLD + "Use the pause command to pause at any time!", 2, 60, 2);
                 } else {
                     p.sendMessage(ChatColor.RED + "[TNT Challenge] The game is already going!");

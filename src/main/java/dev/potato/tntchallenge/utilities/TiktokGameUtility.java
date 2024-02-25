@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.BoundingBox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,10 +57,7 @@ public class TiktokGameUtility {
 
         // Player Inventory
         player.getInventory().clear();
-        player.getInventory().addItem(new ItemStack(Material.IRON_BLOCK, 64),
-                new ItemStack(Material.GOLD_BLOCK, 64),
-                new ItemStack(Material.EMERALD_BLOCK, 64),
-                new ItemStack(Material.DIAMOND_BLOCK, 64));
+        player.getInventory().addItem(new ItemStack(Material.IRON_BLOCK, 64), new ItemStack(Material.GOLD_BLOCK, 64), new ItemStack(Material.EMERALD_BLOCK, 64), new ItemStack(Material.DIAMOND_BLOCK, 64));
         ItemStack pickaxe = new ItemStack(Material.DIAMOND_PICKAXE);
         ItemMeta pickaxeMeta = pickaxe.getItemMeta();
         pickaxeMeta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "GOD PICKAXE");
@@ -76,15 +72,20 @@ public class TiktokGameUtility {
         pickaxe.setItemMeta(pickaxeMeta);
         player.getInventory().addItem(pickaxe);
 
-        // Game Mode
+        // Player
         player.setGameMode(GameMode.SURVIVAL);
         player.setHealth(20);
         player.setFoodLevel(20);
 
         // Place Area
-        BoundingBox placeAreaBoundingBox = plugin.getRegions().getPlaceArea();
-        List<Block> placeArea = plugin.getRegions().boundingBoxToList(placeAreaBoundingBox, player.getWorld());
+        List<Block> placeArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getPlaceArea(), player.getWorld());
         for (Block block : placeArea) {
+            block.setType(Material.AIR);
+        }
+
+        // Win Area
+        List<Block> winArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getWinArea(), player.getWorld());
+        for (Block block : winArea) {
             block.setType(Material.AIR);
         }
     }
@@ -105,13 +106,18 @@ public class TiktokGameUtility {
         // Player Inventory
         player.getInventory().clear();
 
-        // Game Mode
+        // Player
         player.setGameMode(GameMode.CREATIVE);
 
         // Place Area
-        BoundingBox placeAreaBoundingBox = plugin.getRegions().getPlaceArea();
-        List<Block> placeArea = plugin.getRegions().boundingBoxToList(placeAreaBoundingBox, player.getWorld());
+        List<Block> placeArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getPlaceArea(), player.getWorld());
         for (Block block : placeArea) {
+            block.setType(Material.AIR);
+        }
+
+        // Win Area
+        List<Block> winArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getWinArea(), player.getWorld());
+        for (Block block : winArea) {
             block.setType(Material.AIR);
         }
     }

@@ -3,7 +3,6 @@ package dev.potato.tntchallenge;
 import dev.potato.tntchallenge.commands.TNTChallengeCommand;
 import dev.potato.tntchallenge.configs.RegionConfig;
 import dev.potato.tntchallenge.listeners.GameListeners;
-import dev.potato.tntchallenge.listeners.ScoreboardListeners;
 import dev.potato.tntchallenge.listeners.SetupListeners;
 import dev.potato.tntchallenge.utilities.*;
 import org.bukkit.Bukkit;
@@ -22,10 +21,10 @@ import java.util.HashMap;
 public final class TNTChallenge extends JavaPlugin {
     private static TNTChallenge plugin;
     private RegionUtility regions;
-    private final HashMap<Player, PlayerSetupRegionUtility> setupUtilities = new HashMap<>();
-    private final HashMap<Player, PlayerScoreboardUtility> scoreboardUtilities = new HashMap<>();
-    private final HashMap<Player, GameUtility> gameUtilities = new HashMap<>();
-    private final HashMap<Player, TiktokGameUtility> tiktokGameUtilities = new HashMap<>();
+    private HashMap<Player, PlayerSetupRegionUtility> setupUtilities = new HashMap<>();
+    private HashMap<Player, PlayerScoreboardUtility> scoreboardUtilities = new HashMap<>();
+    private HashMap<Player, SingeplayerGameUtility> singeplayerGameUtilities = new HashMap<>();
+    private HashMap<Player, TiktokGameUtility> tiktokGameUtilities = new HashMap<>();
     private final TiktokLiveUtility tiktokLiveUtility = new TiktokLiveUtility();
 
     public static TNTChallenge getPlugin() {
@@ -62,15 +61,15 @@ public final class TNTChallenge extends JavaPlugin {
         return scoreboardUtility;
     }
 
-    public GameUtility getGameUtility(Player p) {
-        GameUtility gameUtility;
-        if (gameUtilities.containsKey(p)) {
-            gameUtility = gameUtilities.get(p);
+    public SingeplayerGameUtility getSingeplayerGameUtility(Player p) {
+        SingeplayerGameUtility singeplayerGameUtility;
+        if (singeplayerGameUtilities.containsKey(p)) {
+            singeplayerGameUtility = singeplayerGameUtilities.get(p);
         } else {
-            gameUtility = new GameUtility(false, false, p);
-            gameUtilities.put(p, gameUtility);
+            singeplayerGameUtility = new SingeplayerGameUtility(false, false, p);
+            singeplayerGameUtilities.put(p, singeplayerGameUtility);
         }
-        return gameUtility;
+        return singeplayerGameUtility;
     }
 
     public TiktokGameUtility getTiktokGameUtility(Player p) {
@@ -176,7 +175,6 @@ public final class TNTChallenge extends JavaPlugin {
 
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new SetupListeners(), this);
-        getServer().getPluginManager().registerEvents(new ScoreboardListeners(), this);
         getServer().getPluginManager().registerEvents(new GameListeners(), this);
     }
 

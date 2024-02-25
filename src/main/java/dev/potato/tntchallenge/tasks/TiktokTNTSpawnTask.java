@@ -9,16 +9,16 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class TiktokTNTSpawnTask extends BukkitRunnable {
-    int amountOfTNT;
-    int amountOfTNTInit;
-    int powerLevel;
-    int winsToBeAdded;
-    String giftSent;
-    Player p;
-    TikTokGiftEvent tikTokGiftEvent;
-    TNTChallenge plugin = TNTChallenge.getPlugin();
-    int amountAddedToY;
-    int fuseTicks;
+    private int amountOfTNT;
+    private int amountOfTNTInit;
+    private int powerLevel;
+    private int winsToBeAdded;
+    private String giftSent;
+    private Player p;
+    private TikTokGiftEvent tikTokGiftEvent;
+    private int amountAddedToY;
+    private int fuseTicks;
+    private TNTChallenge plugin = TNTChallenge.getPlugin();
 
     public TiktokTNTSpawnTask(int amountOfTNT, int powerLevel, int winsToBeAdded, String giftSent, Player p, TikTokGiftEvent tikTokGiftEvent, int amountAddedToY, int fuseTicks) {
         this.amountOfTNT = amountOfTNT;
@@ -39,9 +39,11 @@ public class TiktokTNTSpawnTask extends BukkitRunnable {
             this.cancel();
             return;
         }
+
         // Spawn TNT entity
         TNTPrimed tnt = p.getWorld().spawn(p.getLocation().add(0, amountAddedToY, 0), TNTPrimed.class);
         tnt.setFuseTicks(fuseTicks);
+
         // Start TNT handle explosion task
         new BukkitRunnable() {
             @Override
@@ -51,17 +53,21 @@ public class TiktokTNTSpawnTask extends BukkitRunnable {
                 tnt.remove();
             }
         }.runTaskLater(plugin, fuseTicks - 10);
+
         if (amountOfTNT == amountOfTNTInit) {
             // Notify the player that TNT has spawned
             p.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + tikTokGiftEvent.getUser().getName(), ChatColor.GOLD + "" + ChatColor.BOLD + "has sent " + giftSent, 2, 60, 2);
         }
+
         // Update TNT spawned and wins on scoreboard
-        PlayerScoreboardUtility psu = plugin.getScoreboardUtility(p);
-        psu.setTntSpawned(psu.getTntSpawned() + 1);
+        PlayerScoreboardUtility playerScoreboardUtility = plugin.getScoreboardUtility(p);
+        playerScoreboardUtility.setTntSpawned(playerScoreboardUtility.getTntSpawned() + 1);
         if (amountOfTNT == amountOfTNTInit) {
-            psu.setWins(psu.getWins() + winsToBeAdded);
+            playerScoreboardUtility.setWins(playerScoreboardUtility.getWins() + winsToBeAdded);
         }
-        psu.givePlayerScoreboard(false);
+        playerScoreboardUtility.givePlayerScoreboard(false);
+
+        // Decrement the counter
         amountOfTNT--;
     }
 }

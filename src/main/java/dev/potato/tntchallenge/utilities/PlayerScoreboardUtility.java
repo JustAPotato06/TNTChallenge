@@ -54,8 +54,8 @@ public class PlayerScoreboardUtility {
 
     public void givePlayerScoreboard(boolean shouldInitialize) {
         TNTChallenge plugin = TNTChallenge.getPlugin();
-        PersistentDataContainer pData = player.getPersistentDataContainer();
-        pData.set(new NamespacedKey(plugin, "update-scoreboard"), PersistentDataType.BOOLEAN, true);
+        PersistentDataContainer playerData = player.getPersistentDataContainer();
+        playerData.set(new NamespacedKey(plugin, "update-scoreboard"), PersistentDataType.BOOLEAN, true);
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard scoreboard = manager.getNewScoreboard();
         Objective objective = scoreboard.registerNewObjective("Game Stats", Criteria.DUMMY, ChatColor.GOLD + "" + ChatColor.BOLD + "Game Stats");
@@ -79,8 +79,8 @@ public class PlayerScoreboardUtility {
 
     public void removePlayerScoreboard() {
         TNTChallenge plugin = TNTChallenge.getPlugin();
-        PersistentDataContainer pData = player.getPersistentDataContainer();
-        pData.set(new NamespacedKey(plugin, "update-scoreboard"), PersistentDataType.BOOLEAN, false);
+        PersistentDataContainer playerData = player.getPersistentDataContainer();
+        playerData.set(new NamespacedKey(plugin, "update-scoreboard"), PersistentDataType.BOOLEAN, false);
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard scoreboard = manager.getNewScoreboard();
         player.setScoreboard(scoreboard);

@@ -1,20 +1,26 @@
-####################
-#                  #
-#  WORLD SETTINGS  #
-#                  #
-####################
+##########################
+#                        #
+#     GAME SETTINGS      #
+#                        #
+##########################
 
-# The world name for the world you'll be playing in
-world-name: world
+# NOTICE: These settings will affect BOTH singleplayer and Tiktok live play!
 
-###################
-#                 #
-#  GAME SETTINGS  #
-#                 #
-###################
+# The amount of time, in seconds, that you must have the win area filled in order to trigger a win
+# Reccomended: 10-15 seconds
+countdown-time: 15
+
+# This setting, when enabled, will automatically place iron, gold, emerald, or diamond regardless of the block you are holding
+# NOTE: Your place area must be 12 blocks high for this to work properly
+should-autocomplete-blocks: true
+
+###########################
+#                         #
+#  SINGLEPLAYER SETTINGS  #
+#                         #
+###########################
 
 # NOTICE: These settings will ONLY affect singleplayer play!
-# Game configuration for Tiktok lives is handled by the plugin automatically
 
 # The chance, in percentage, that a TNT has to spawn every second after the game starts
 # It's recommended that this value stays below 10 (or 10%)
@@ -29,16 +35,121 @@ max-tnt-power: 10
 # WARNING: Setting this value to anything at or below 10 ticks may break the game!
 tnt-detonate-time: 60
 
-# The amount of time, in seconds, that you must have the win area filled in order to trigger a win
-# Reccomended: 10-15 seconds
-countdown-time: 15
-
 #####################
 #                   #
 #  TIKTOK SETTINGS  #
 #                   #
 #####################
 
+# NOTICE: These settings will affect ONLY Tiktok live play!
+
 # The username of your Tiktok account
 # If this field is filled out, the plugin will automatically use your Tiktok live instead of singeplayer
 tiktok-username:
+
+# The following settings will adjust what happens when users send the associated gift
+# The default values are recommended, so don't feel pressured to change anything here!
+
+rose:
+  # This value multiplies! If you set it to 1, and the user sends 2 roses, it will send 2 TNT
+  tnt-amount-per-gift: 1
+  # The power level the TNT spawned from a rose will have
+  tnt-power-level: 2
+  # The amount of wins that will be added because of a rose being sent
+  # This can be a negative value if you would like to subtract wins on gift!
+  added-wins-per-gift: 0
+  # This string will be added after the phrase "[user] has sent..."
+  # By setting this to default, the message will look like this:
+  # "[user] has sent x1 TNT!" Note: The 1 will be replaced with however many TNT the user sends
+  gift-message: 'default'
+  # Adjusting this will make the tnt spawn __ many blocks lower or higher than the player
+  # This is useful for creating "TNT Rain" like effects
+  amount-added-to-tnt-y: 0
+  # This is how long the TNT will take to explode after it spawns
+  # Again, adjusting this to anything below 10 is discouraged and might break something
+  # Tip: If the TNT is going to spawn higher up, you may want to increase this!
+  tnt-fuse-ticks: 40
+  # This is how long the plugin will wait before sending another TNT (if multiple were sent)
+  # This value may be useful if you experience lag/server crashes
+  # Note: This value is in ticks!
+  time-between-tnt: 1
+
+coffee:
+  tnt-amount-per-gift: 10
+  tnt-power-level: 2
+  added-wins-per-gift: 0
+  gift-message: 'default'
+  amount-added-to-tnt-y: 0
+  tnt-fuse-ticks: 40
+  time-between-tnt: 1
+
+perfume:
+  tnt-amount-per-gift: 20
+  tnt-power-level: 2
+  added-wins-per-gift: 0
+  gift-message: 'default'
+  amount-added-to-tnt-y: 0
+  tnt-fuse-ticks: 40
+  time-between-tnt: 1
+
+doughnut:
+  tnt-amount-per-gift: 30
+  tnt-power-level: 2
+  added-wins-per-gift: 0
+  gift-message: 'default'
+  amount-added-to-tnt-y: 0
+  tnt-fuse-ticks: 40
+  time-between-tnt: 1
+
+hand-hearts:
+  tnt-amount-per-gift: 50
+  tnt-power-level: 2
+  added-wins-per-gift: 0
+  gift-message: 'default'
+  amount-added-to-tnt-y: 0
+  tnt-fuse-ticks: 40
+  time-between-tnt: 1
+
+corgi:
+  tnt-amount-per-gift: 50
+  tnt-power-level: 5
+  added-wins-per-gift: 0
+  gift-message: 'TNT RAIN!'
+  amount-added-to-tnt-y: 15
+  tnt-fuse-ticks: 80
+  time-between-tnt: 5
+
+swan:
+  tnt-amount-per-gift: 800
+  tnt-power-level: 5
+  added-wins-per-gift: -2
+  # Using "default-include-wins" will include how many wins were sent in the default message
+  gift-message: 'default-include-wins'
+  amount-added-to-tnt-y: 0
+  tnt-fuse-ticks: 40
+  time-between-tnt: 1
+
+galaxy:
+  tnt-amount-per-gift: 3000
+  tnt-power-level: 5
+  added-wins-per-gift: -5
+  gift-message: 'default-include-wins'
+  amount-added-to-tnt-y: 0
+  tnt-fuse-ticks: 40
+  time-between-tnt: 1
+
+# The confetti gift is unique!
+# This is the only gift that has the ability to help you during play!
+confetti:
+  # By setting this to true, when someone sends a confetti,
+  # the place and win area will be filled for you, and a win countdown will be started
+  should-help: true
+
+money-gun:
+  tnt-amount-per-gift: 200
+  tnt-power-level: 5
+  added-wins-per-gift: 0
+  gift-message: 'A TOTAL RESET!'
+  amount-added-to-tnt-y: 0
+  tnt-fuse-ticks: 40
+  time-between-tnt: 1

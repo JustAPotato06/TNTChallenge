@@ -8,7 +8,6 @@ import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.BoundingBox;
 
 import java.util.List;
 
@@ -27,25 +26,26 @@ public class WinCountdownTask extends BukkitRunnable {
     public void run() {
         // Check if the player is still online
         if (!p.isOnline()) this.cancel();
+
         // Check if the win area is still filled
         boolean shouldContinue = true;
         for (Block block : winArea) {
             if (block.getType() == Material.AIR) shouldContinue = false;
         }
+
         if (shouldContinue) {
             // Check if the countdown is at 0
             if (countdown == 0) {
                 // Give the player a win
                 p.sendTitle(ChatColor.GREEN + "" + ChatColor.BOLD + "VICTORY!", ChatColor.WHITE + "" + ChatColor.BOLD + "Congratulations!", 4, 40, 4);
                 p.spawnParticle(Particle.FIREWORKS_SPARK, p.getLocation(), 1000);
-                BoundingBox placeAreaBoundingBox = plugin.getRegions().getPlaceArea();
-                List<Block> placeArea = plugin.getRegions().boundingBoxToList(placeAreaBoundingBox, p.getWorld());
+                List<Block> placeArea = plugin.getRegions().boundingBoxToList(plugin.getRegions().getPlaceArea(), p.getWorld());
                 for (Block block : placeArea) {
                     block.setType(Material.AIR);
                 }
-                PlayerScoreboardUtility psu = plugin.getScoreboardUtility(p);
-                psu.setWins(psu.getWins() + 1);
-                psu.givePlayerScoreboard(false);
+                PlayerScoreboardUtility playerScoreboardUtility = plugin.getScoreboardUtility(p);
+                playerScoreboardUtility.setWins(playerScoreboardUtility.getWins() + 1);
+                playerScoreboardUtility.givePlayerScoreboard(false);
                 this.cancel();
             } else {
                 // Decrement the countdown
@@ -55,9 +55,9 @@ public class WinCountdownTask extends BukkitRunnable {
         } else {
             // Cancel the countdown
             p.sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "COUNTDOWN CANCELLED!", ChatColor.WHITE + "" + ChatColor.BOLD + "Better luck next time!", 4, 40, 4);
-            PlayerScoreboardUtility psu = plugin.getScoreboardUtility(p);
-            psu.setFailedAttempts(psu.getFailedAttempts() + 1);
-            psu.givePlayerScoreboard(false);
+            PlayerScoreboardUtility playerScoreboardUtility = plugin.getScoreboardUtility(p);
+            playerScoreboardUtility.setFailedAttempts(playerScoreboardUtility.getFailedAttempts() + 1);
+            playerScoreboardUtility.givePlayerScoreboard(false);
             this.cancel();
         }
     }
